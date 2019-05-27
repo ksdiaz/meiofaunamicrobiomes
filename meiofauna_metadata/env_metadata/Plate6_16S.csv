@@ -1,0 +1,97 @@
+Plate,Well,Field #,Barcode,Genus,Phylum,Order,Family,Latitude,Longitude,Depth,Region,DateofSampling
+BRS2010JLN001,A01,1359.01,95949414,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.458333333,82.3,3,Bocas del Toro Province,06/07/10
+BRS2010JLN001,B01,1360.01,95949391,Hubrechtella,Nemertea,Palaeonemertea,Hubrechtidae,9.322233333,82.2215,5,Bocas del Toro Province,06/08/10
+BRS2010JLN001,C01,1361.01,95949390,,Nemertea,Hoplonemertea,,9.344916667,82.17473333,4,Bocas del Toro Province,06/08/10
+BRS2010JLN001,D01,1361.02,95949367,,Nemertea,Hoplonemertea,,9.344916667,82.17473333,4,Bocas del Toro Province,06/08/10
+BRS2010JLN001,E01,1362.03,95949366,,Sipuncula,,,9.344916667,82.17473333,4,Bocas del Toro Province,06/08/10
+BRS2010JLN001,F01,1362.04,95949343,,Sipuncula,,,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,G01,1362.05,95949935,,Sipuncula,,,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,H01,1362.06,95949319,,Sipuncula,,,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,A02,1362.07,95949413,,Sipuncula,,,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,B02,1362.08,95949392,,Sipuncula,,,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,C02,1363.01,95949389,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,D02,1361.03,95949368,Annulonemertes,Nemertea,Hoplonemertea,,9.344916667,82.17473333,4,Bocas del Toro Province,06/08/10
+BRS2010JLN001,E02,1361.04,95949365,Annulonemertes,Nemertea,Hoplonemertea,,9.344916667,82.17473333,4,Bocas del Toro Province,06/08/10
+BRS2010JLN001,F02,1365.01,95949344,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.458333333,82.3,3,Bocas del Toro Province,06/07/10
+BRS2010JLN001,G02,1366.01,95949341,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,H02,1366.02,95949952,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,A03,1365.03,95949412,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,B03,1361.05,95941235,Annulonemertes,Nemertea,Hoplonemertea,,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,C03,1367.01,95949388,,Nemertea,Hoplonemertea,,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,D03,1367.02,95949369,,Nemertea,Hoplonemertea,,9.14765,81.9435,,Bocas del Toro Province,06/10/10
+BRS2010JLN001,E03,1365.04,95949364,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,F03,1368.01,95949345,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,G03,1368.02,95949340,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,H03,1366.03,95949321,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,A04,1368.03,95949411,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,B04,1369.01,95949394,,Nemertea,Hoplonemertea,,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,C04,1367.03,95949387,,Nemertea,Hoplonemertea,,9.35065,82.17241667,15,Bocas del Toro Province,06/11/10
+BRS2010JLN001,D04,1370.01,95949370,,Nemertea,Hoplonemertea,,9.3517,82.162,6,Bocas del Toro Province,06/12/10
+BRS2010JLN001,E04,1370.02,95949363,,Nemertea,Hoplonemertea,,9.3517,82.162,6,Bocas del Toro Province,06/12/10
+BRS2010JLN001,F04,1371.01,95949346,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.416016667,82.32906667,,Bocas del Toro Province,06/14/10
+BRS2010JLN001,G04,1370.03,95949339,,Nemertea,Hoplonemertea,,9.416016667,82.32906667,,Bocas del Toro Province,06/14/10
+BRS2010JLN001,H04,1372.01,95949322,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,A05,1373.01,95949410,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.34735,82.16788333,4,Bocas del Toro Province,06/14/10
+BRS2010JLN001,B05,1373.02,95949395,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.34735,82.16788333,4,Bocas del Toro Province,06/14/10
+BRS2010JLN001,C05,1360.02,95949386,Hubrechtella,Nemertea,Palaeonemertea,Hubrechtidae,9.34735,82.16788333,4,Bocas del Toro Province,06/14/10
+BRS2010JLN001,D05,1374.01,95949371,Halammohydra,Cnidaria,,,9.34735,82.16788333,4,Bocas del Toro Province,06/14/10
+BRS2010JLN001,E05,1374.02,95949362,Halammohydra,Cnidaria,,,9.34735,82.16788333,4,Bocas del Toro Province,06/14/10
+BRS2010JLN001,F05,1374.03,95949347,Halammohydra,Cnidaria,,,9.34735,82.16788333,4,Bocas del Toro Province,06/14/10
+BRS2010JLN001,G05,1374.04,95949338,Halammohydra,Cnidaria,,,9.34735,82.16788333,4,Bocas del Toro Province,06/14/10
+BRS2010JLN001,H05,1374.05,95949323,Halammohydra,Cnidaria,,,9.34735,82.16788333,4,Bocas del Toro Province,06/14/10
+BRS2010JLN001,A06,1375.01,95949409,Tetrastemma,Nemertea,Hoplonemertea,Tetrastemmatidae,9.34735,82.16788333,4,Bocas del Toro Province,06/14/10
+BRS2010JLN001,B06,1367.04,95949396,,Nemertea,Hoplonemertea,,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,C06,1367.05,95949385,,Nemertea,Hoplonemertea,,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,D06,1376.01,95949372,,Sipuncula,,,9.34735,82.16788333,4,Bocas del Toro Province,06/14/10
+BRS2010JLN001,E06,1376.02,95949361,,Sipuncula,,,9.34735,82.16788333,4,Bocas del Toro Province,06/14/10
+BRS2010JLN001,F06,1376.04,95949348,,Sipuncula,,,9.34735,82.16788333,4,Bocas del Toro Province,06/14/10
+BRS2010JLN001,G06,1366.04,95949337,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,H06,1366.05,95949324,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,A07,1366.06,95949408,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,B07,1366.07,95949397,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,C07,1365.05,95949384,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,,,,Bocas del Toro Province,06/15/10
+BRS2010JLN001,D07,1371.02,95949373,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,E07,1371.03,95949360,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,F07,1371.04,95949349,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,G07,1371.05,95949336,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,H07,1373.03,95949325,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.360944444,82.24311111,0,Bocas del Toro Province,06/07/10
+BRS2010JLN001,A08,1377.01,95949407,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,,,,Bocas del Toro Province,06/15/10
+BRS2010JLN001,B08,1378.01,95949398,Tetrastemma,Nemertea,Hoplonemertea,Tetrastemmatidae,9.214066667,81.9318,9,Bocas del Toro Province,06/10/10
+BRS2010JLN001,C08,1379.01,95949383,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.35065,82.17241667,,Bocas del Toro Province,06/15/10
+BRS2010JLN001,D08,1373.01,95949374,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,E08,1365.06,95949359,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,,,,Bocas del Toro Province,06/15/10
+BRS2010JLN001,F08,1365.07,95949350,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,,,,Bocas del Toro Province,06/15/10
+BRS2010JLN001,G08,1362.1,95949335,Phascolosoma,Sipuncula,,,9.14765,81.9435,,Bocas del Toro Province,06/10/10
+BRS2010JLN001,H08,1362.11,95949326,Phascolosoma,Sipuncula,,,9.14765,81.9435,,Bocas del Toro Province,06/10/10
+BRS2010JLN001,A09,1371.06,95949406,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.35065,82.17241667,3,Bocas del Toro Province,06/11/10
+BRS2010JLN001,B09,1381.01,95949399,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.14765,81.9435,,Bocas del Toro Province,06/10/10
+BRS2010JLN001,C09,1382.01,95949382,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.364611111,82.23816667,0,Bocas del Toro Province,06/16/10
+BRS2010JLN001,D09,1383.01,95949375,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.364611111,82.23816667,0,Bocas del Toro Province,06/16/10
+BRS2010JLN001,E09,1383.02,95949358,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.364611111,82.23816667,0,Bocas del Toro Province,06/16/10
+BRS2010JLN001,F09,1383.03,95949351,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.364611111,82.23816667,0,Bocas del Toro Province,06/16/10
+BRS2010JLN001,G09,1383.04,95949334,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.364611111,82.23816667,0,Bocas del Toro Province,06/16/10
+BRS2010JLN001,H09,1383.05,95949327,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.364611111,82.23816667,0,Bocas del Toro Province,06/16/10
+BRS2010JLN001,A10,1383.06,95949936,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.364611111,82.23816667,0,Bocas del Toro Province,06/16/10
+BRS2010JLN001,B10,1383.07,95949400,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.364611111,82.23816667,0,Bocas del Toro Province,06/16/10
+BRS2010JLN001,C10,1383.08,95949381,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.364611111,82.23816667,0,Bocas del Toro Province,06/16/10
+BRS2010JLN001,D10,1383.09,95949376,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.364611111,82.23816667,0,Bocas del Toro Province,06/16/10
+BRS2010JLN001,E10,1383.1,95949357,Ototyphlonemertes,Nemertea,Hoplonemertea,Ototyphlonemertidae,9.364611111,82.23816667,0,Bocas del Toro Province,06/16/10
+BRS2010JLN001,F10,1384.01,95949352,,Nemertea,Heteronemertea,Lineiformes,9.14765,81.9435,,Bocas del Toro Province,06/10/10
+BRS2010JLN001,G10,1384.02,95949333,,Nemertea,Heteronemertea,Lineiformes,9.14765,81.9435,,Bocas del Toro Province,06/10/10
+BRS2010JLN001,H10,1371.8,95949328,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.14765,81.9435,,Bocas del Toro Province,06/10/10
+BRS2010JLN001,A11,1385.01,95949934,Poseidonemertes,Nemertea,Hoplonemertea,,9.2521,82.12861667,,Bocas del Toro Province,06/09/10
+BRS2010JLN001,B11,1371.09,95949401,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,C11,1371.1,95949380,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,D11,1386.01,95949377,Tetrastemma,Nemertea,Hoplonemertea,Tetrastemmatidae,9.350266667,82.17225,14,Bocas del Toro Province,06/08/10
+BRS2010JLN001,E11,1371.11,95949356,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.14765,81.9435,,Bocas del Toro Province,06/10/10
+BRS2010JLN001,F11,1371.12,95949353,Cephalothrix,Nemertea,Palaeonemertea,Cephalotrichidae,9.14765,81.9435,,Bocas del Toro Province,06/10/10
+BRS2010JLN001,G11,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,
+BRS2010JLN001,H11,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,
+BRS2010JLN001,A12,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,
+BRS2010JLN001,B12,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,
+BRS2010JLN001,C12,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,
+BRS2010JLN001,D12,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,
+BRS2010JLN001,E12,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,
+BRS2010JLN001,F12,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,
+BRS2010JLN001,G12,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,
+BRS2010JLN001,H12,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,BLANK,

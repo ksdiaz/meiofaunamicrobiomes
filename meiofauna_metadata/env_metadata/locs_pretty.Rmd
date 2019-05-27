@@ -1,0 +1,394 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+setwd("/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/env_metadata/")
+#save.image("/Users/nekop/Box Sync/Krystalle_project_thesis/16S_all/env_metadata/locs_pretty.RData")
+load("/Users/nekop/Box Sync/Krystalle_project_thesis/16S_all/env_metadata/locs_pretty.RData")
+#core.metadata[core.metadata$Phylum == "Environmental DNA",]$Phylum <- "Environmental"
+```
+
+Read in metadata and bioms (22 Aug 2018)
+21 September 2018- changed to reflect the fixed metadata
+```{r}
+analyzed.samps <- read.table("/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/fulllmap_analyzed_only_17Sept2018.tsv", header=T, sep='\t',stringsAsFactors=F,quote="")
+all.biom <- read_biom("/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/21Jan2018_concatenated/tables/master_allanalyzed_featlevel_table/feature-table.biom")
+tax.tab <- read.table("/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/21Jan2018_concatenated/taxonomy.tsv", header=T, sep='\t',stringsAsFactors=F,quote="")
+#November 19 2018:
+corean.biom <- read_biom("/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/21Jan2018_concatenated/tables/master_coreanalyzedhosts_featlevel_table/master_coreanalyzedhosts_feature-table.biom")
+core.an <- as.data.frame(as.matrix(biom_data(corean.biom)))
+core.an <- cbind(row.names(core.an), core.an)
+colnames(core.an) <- c("FeatureID", colnames(core.an)[2:312])
+rownames(core.an) <- NULL
+```
+
+Doing some data editing on the imported data:
+```{r}
+all.feats <- as.data.frame(as.matrix(biom_data(all.biom)))
+all.feats <- cbind(row.names(all.feats), all.feats)
+colnames(all.feats) <- c("FeatureID", colnames(all.feats)[2:312])
+rownames(all.feats) <- NULL
+tax.tab <- tax.as.qiime.strings(tax.tab) #on the GG taxonomy:
+```
+
+Importing lists of core microbes:
+```{r}
+list.filenames <- list.files(path="/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/21Jan2018_concatenated/featlevel/80corelist/", pattern="80corelist.txt") #core list files
+list.data <- list() 
+for (i in 1:length(list.filenames)) { #read each core list & make vector of dataframes, where dataframe is called by the host species name
+  setwd("/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/21Jan2018_concatenated/featlevel/80corelist/")
+  list.data[[i]] <- read.table(list.filenames[i], header=T, sep='\t', stringsAsFactors=F, quote="")
+}
+names(list.data) <- gsub("_80corelist.txt","", list.filenames)
+names(list.data)[1] <- "Environmental DNA"
+counter <- 1
+for (host in names(list.data)) { 
+  host.taxon <- strsplit(host, "_")[[1]]
+  phyl <- gsub("phyl", "", host.taxon[1])
+  genus <- gsub("genus", "", host.taxon[2])
+  species <- ifelse(is.na(host.taxon[4]), gsub("species", "", host.taxon[3]), host.taxon[4]) 
+  names(list.data)[[counter]] <- paste(phyl, genus, species, sep="_")
+  counter <- counter + 1
+}
+#names(list.data)
+```
+
+Making summary tables for each host species core microbes:
+```{r}
+counter <- 1
+for (host in list.data) {
+  host.taxon <- strsplit(names(list.data)[counter], "_")[[1]]
+  host.samps <- (analyzed.samps[analyzed.samps$Phylum == host.taxon[1] && analyzed.samps$Genus == host.taxon[2] | analyzed.samps$species == host.taxon[3] | analyzed.samps$species == paste(host.taxon[2], host.taxon[3], sep="_"),]$SampleID)
+  host.samps.data <- as.data.frame(host.samps)
+  temp.sum <- numeric(0)
+  samp.microbes <- numeric(0)
+  for (samp in host.samps) { #this is where I need Ocean, Region, and ExactSite
+    index <- which(colnames(all.feats) == samp) #returns index of feat table column
+    temp.sum <- c(temp.sum, sum(all.feats[,index])) #sum all microbes for that sample
+    samp.microbes <- c(samp.microbes, index)
+  }
+  host.samps.data$TotalMicrobes <- temp.sum
+  host.samps.data$ColIndex <- samp.microbes
+  host.samps.data$Ocean <- analyzed.samps$Ocean[match(host.samps, analyzed.samps$SampleID)]
+  host.samps.data$ExactSite <- analyzed.samps$ExactSite[match(host.samps, analyzed.samps$SampleID)]
+  host$RelAbundance <- ""
+  host$MinAbundance <- ""
+  host$MaxAbundance <- ""
+  host$AvgAbundance <- ""
+  host$StdDevAbundance <- ""
+  temp.relabund <- numeric(0)
+  temp.min <- numeric(0)
+  temp.max <- numeric(0)
+  temp.avg <- numeric(0)
+  temp.sd <- numeric(0)
+  host$All.HostPhyla.Found.In <- ""
+  host$All.Oceans.Found.In <- ""
+  host$Other.Core.Hosts <- ""
+  library(stringr)
+  for (feat in host$Feature.ID){
+    rel.abund <- as.numeric(all.feats[all.feats$FeatureID == feat,][host.samps.data$ColIndex]/host.samps.data$TotalMicrobes) #rel abundances calc
+    total.abund <- sum(all.feats[all.feats$FeatureID == feat,][host.samps.data$ColIndex])/sum(host.samps.data$TotalMicrobes)
+    temp.relabund <- c(temp.relabund, total.abund)
+    temp.min <- c(temp.min, summary(rel.abund)[1])
+    temp.max <- c(temp.max, summary(rel.abund)[6])
+    temp.avg <- c(temp.avg, summary(rel.abund)[4])
+    temp.sd <- c(temp.sd, sd(rel.abund))
+    all.feats[all.feats$FeatureID == feat, !(all.feats[all.feats$FeatureID == feat,][1,]==0)]
+  presentin <- colnames(all.feats[all.feats$FeatureID == feat, !(all.feats[all.feats$FeatureID == feat,][1,]==0)])[2:length(colnames(all.feats[all.feats$FeatureID == feat, !(all.feats[all.feats$FeatureID == feat,][1,]==0)]))]
+  in.samps <- analyzed.samps[sort(match(presentin, analyzed.samps$SampleID)),]
+  host[host$Feature.ID == feat,]$All.Oceans.Found.In <- str_c(sort(unique(in.samps$Ocean)),collapse = ", ") 
+   host[host$Feature.ID == feat,]$All.HostPhyla.Found.In <- str_c(sort(unique(in.samps$Phylum)), collapse = ", ")
+    for (i in 1:length(list.data)) {
+      if (feat %in% list.data[i][[1]]$Feature.ID & str_c(host.taxon, collapse ="_") != names(list.data[i])) host[host$Feature.ID==feat,]$Other.Core.Hosts <- paste(host[host$Feature.ID==feat,]$Other.Core.Hosts, names(list.data[i[[1]]]), ", ")
+    }
+  }
+  host$RelAbundance <- temp.relabund
+  host$MinAbundance <- temp.min
+  host$MaxAbundance <- temp.max
+  host$AvgAbundance <- temp.avg
+  host$StdDevAbundance <- temp.sd
+  header1 <- paste("Host:", str_c(host.taxon, collapse=" "))
+  header2 <- paste(cat("\n"), "Number of host samples: n=", length(host.samps), sep="")
+  oceancounts<-as.data.frame(table(host.samps.data$Ocean))
+  header3 <- str_c(oceancounts$Var1, "(n=", oceancounts$Freq,"), ",collapse = "")
+  header4 <- as.character()
+  for (i in 1:length(unique(host.samps.data$Ocean))){
+   header4[i] <- paste(unique(host.samps.data$Ocean)[i], "sites: ", str_c(unique(host.samps.data[host.samps.data$Ocean == unique(host.samps.data$Ocean)[i],]$ExactSite), collapse = ", "))
+  }
+  headerdiv <- "-------------------------------------------------"
+  filename <- paste("/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/env_metadata/core_summaries/phyl", str_c(host.taxon,collapse="_"),"_core_summary_DETAILED_ABUNDANCE.txt", sep = "")
+  write(str_c(header1, header2, header3, str_c(header4, collapse = "\n"), headerdiv, sep="\n"), file=filename, sep="")
+  write.table(host, file=filename, append=TRUE, quote=FALSE, row.names=FALSE, sep="\t")
+  #hosts <- analyzed.samps[analyzed.samps$SampleID == host.samps[1],]
+  #print(paste(hosts$Phylum ,hosts$Class, hosts$Order, hosts$Family, hosts$Genus, hosts$species, sep="."))
+  #write.table(paste(hosts$Phylum ,hosts$Class, hosts$Order, hosts$Family, hosts$Genus, hosts$species, sep="."), file="/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/env_metadata/core_summaries/spplist.txt", append=TRUE, quote=FALSE, row.names=FALSE, sep="")
+  counter <- counter + 1
+}
+```
+
+Nov 2018: Melting data for some quick & dirty core barplots in ggplot2 (nicer to look at than qiime2 default barplots)
+```{r}
+#core.metadata.old <- core.metadata
+library(reshape2)
+core.metadata <- melt(core.an)
+colnames(core.metadata) <- c("FeatureID", "SampleID", "count")
+#core.metadata <- core.metadata[core.metadata$count != 0,] #not needed if absent
+core.metadata <- cbind(core.metadata, tax.tab[match(core.metadata$FeatureID, tax.tab$FeatureID),][2:9])
+core.metadata <- cbind(core.metadata, analyzed.samps[match(core.metadata$SampleID, analyzed.samps$SampleID),][2:51])
+#core.metadata <- core.metadata[!is.na(core.metadata$species),]
+core.metadata$Component <- ""
+counter <- 1
+for (host in list.data) {
+   host.taxon <- strsplit(names(list.data)[counter], "_")[[1]]
+  host.samps <- (analyzed.samps[analyzed.samps$Phylum == host.taxon[1] && analyzed.samps$Genus == host.taxon[2] | analyzed.samps$species == host.taxon[3] | analyzed.samps$species == paste(host.taxon[2], host.taxon[3], sep="_"),]$SampleID)
+  for (samp in host.samps) { 
+    for (feat in host$Feature.ID){
+      ifelse(core.metadata$FeatureID == feat & core.metadata$SampleID == samp, core.metadata[core.metadata$FeatureID == feat & core.metadata$SampleID == samp, ]$Component <- "core", next)
+    }
+  }
+  counter <- counter + 1
+}
+core.metadata <- core.metadata[!(core.metadata$count == 0 & core.metadata$Component != "core"),]
+core.metadata$tax.order <- paste(core.metadata$Phylum, core.metadata$Class, core.metadata$Order, core.metadata$Family, core.metadata$sciname, sep=";")
+species <- c("Claudrilus","Megadrilus_sp","Ctenodrilus_sp", "duplex", "erneba","santacruzensis")
+for (spp in species) {
+  core.metadata <- core.metadata[!(core.metadata$species == spp & core.metadata$Component == "core"),]
+}
+#unique(core.metadata$sciname)
+#core.metadata[core.metadata$species == "erythronotus", ]$sciname <- "Ischnochiton erythronotus"
+```
+
+
+core barplots, unordered. code finalized Jan 2019
+```{r}
+data.sub <- core.metadata[core.metadata$Component == "core",]
+ggplot(data=data.sub, aes(x=interaction(SampleID, tax.order), y=count)) +
+    geom_bar(position="fill", stat="identity", width = 0.9) + 
+    aes(fill=featClass, group=featClass) + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    scale_y_continuous(expand = c(0,0)) +
+    discrete_scale("fill", "manual", palette_Dark2) +
+    ggtitle("Core Microbiomes") + theme(plot.title = element_text(hjust = 0.5)) +
+    theme(axis.text.x=element_text(angle=90, hjust=1, vjust = 0.2, size=6, color = ocean.col[unlist(lapply(strsplit(sort(as.character(unique(interaction(data.sub$tax.order, data.sub$SampleID, data.sub$Ocean, sep = "-")))), "-", fixed=TRUE), function(x) x[3]))])) +
+    theme(legend.text=element_text(size=6), legend.key.size = unit(0.1,"cm"), legend.position ="bottom", legend.key.height=unit(0.2, "cm"), legend.direction = "vertical") +
+  labs(x="Host Species", y="Abundance") +
+   scale_x_discrete(labels = make_labels, expand = c(0,0)) + 
+  facet_wrap(~Phylum, nrow = 2, scales = "free_x") + theme(strip.text.x = element_text(margin = margin(0,0,0,0, "cm")))
+#guides(col = guide_legend(nrow=1)) #+ scale_y_continuous(labels = percent_format())
+```
+
+The above, but saving to a file & w/ ordered legend:
+```{r}
+library(ggplot2)
+library(RColorBrewer)
+palette_Dark2 <- colorRampPalette(brewer.pal(12, "Paired"))
+pal <- palette_Dark2(length(unique(core.metadata$featOrder)))
+make_labels <- function(labels) { #makes nice ggplot labels from ggplot's labels
+  result <- strsplit(labels, ";")
+  unlist(lapply(result, function(x) x[5]))
+} #https://stackoverflow.com/questions/50047331/only-show-one-part-of-interacting-x-variable-in-x-axis-labels-in-ggplot
+ocean.col <- c("blue", "green", "red")
+names(ocean.col) <- c("Pacific", "Gulf of Mexico", "Atlantic")
+#species and a class-level plot:
+for (phyl in unique(core.metadata$Phylum)) {
+  #phyl <- "Mollusca"
+  filename <- paste("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/R_barplots/species_core/plain", phyl, "_core_barplot_species.tiff", sep="") #pdf(filename, paper = "USr", width = 10, height = 7.5)
+  tiff(filename, width=2000, height= 1500)
+  par(mfrow = c (1, 1))
+  data.sub <- core.metadata[core.metadata$Phylum == phyl & core.metadata$Component == "core",]
+  sppRanks <- sort(unlist(as.list(tapply(data.sub$count, data.sub$featspecies, sum))))
+  plot.title <- paste(phyl, " Core Microbiomes", sep="")
+  print(
+    ggplot(data=data.sub, aes(x=interaction(SampleID, tax.order), y=count)) +
+    geom_bar(position="fill", stat="identity", width=0.9) + 
+    aes(fill=featspecies, group=featspecies) + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    scale_y_continuous(expand = c(0,0)) +
+    discrete_scale("fill", "manual", palette_Dark2, breaks=rev(names(sppRanks))) +
+    ggtitle(plot.title) + theme(plot.title = element_text(hjust = 0.5, size=28)) +
+    theme(axis.text.x=element_text(angle=90, hjust=1, vjust = 0.2, size=18), axis.text.y = element_text(size=19)) + 
+    theme(legend.text=element_text(size=20), legend.key.size = unit(0.3,"cm"), legend.position ="bottom", legend.key.height=unit(0.1, "cm"), legend.key.width = unit(0.3, "cm"), legend.direction = "vertical", legend.title = element_text(size=19)) +
+  labs(x="Host Species", y="Abundance", fill="Microbial Species") + theme(axis.title = element_text(size=19)) +
+   scale_x_discrete(labels = make_labels, expand = c(0,0)) + 
+  theme(strip.text.x = element_text(margin = margin(0,0,0,0, "cm")))
+  )
+  dev.off()
+}
+```
+
+For accessory barplots:
+```{r}
+for (phyl in unique(core.metadata$Phylum)) {
+  #phyl <-"Mollusca"
+  filename <- paste("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/R_barplots/accessory/plain_", phyl, "_accessory_barplot_single.tiff", sep="")
+  tiff(filename, width=2000, height=1500)
+  par(mfrow = c (1, 1))
+  data.sub <- core.metadata[core.metadata$Phylum == phyl & core.metadata$Component != "core",]
+  data.sub$Label <- with(data.sub, reorder(tax.order, count)) 
+  classRanks <-sort(unlist(as.list(tapply(data.sub$count, data.sub$featClass, sum))))
+  plot.title <- paste(phyl, " Accessory Microbiomes", sep="")
+  print(
+    ggplot(data=data.sub, aes(x=interaction(SampleID, tax.order), y=count)) +
+    geom_bar(position="fill", stat="identity", width=0.9) + 
+    aes(fill=featClass, group=featClass) + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    scale_y_continuous(expand = c(0,0)) +
+    discrete_scale("fill", "manual", palette_Dark2, breaks=rev(names(classRanks))) +
+    ggtitle(plot.title) + theme(plot.title = element_text(hjust = 0.5, size=28)) +
+    theme(axis.text.x=element_text(angle=90, hjust=1, vjust = 0.2, size=18), axis.text.y = element_text(size=19)) + 
+    theme(legend.text=element_text(size=16), legend.key.size = unit(0.3,"cm"), legend.position ="bottom", legend.key.height=unit(0.1, "cm"), legend.key.width = unit(0.2, "cm"), legend.direction = "vertical", legend.title = element_text(size=19)) +
+  labs(x="Host Species", y="Abundance", fill="Microbial Class") + theme(axis.title = element_text(size=19)) +
+   scale_x_discrete(labels = make_labels, expand = c(0,0)) + 
+  theme(strip.text.x = element_text(margin = margin(0,0,0,0, "cm")))
+  )
+  dev.off()
+}
+```
+
+for the whole thing:
+```{r}
+library(ggplot2)
+for (phyl in unique(core.metadata$Phylum)) {
+  #phyl <-"Mollusca"
+  filename <- paste("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/R_barplots/overall/plain_",  phyl, "_overall_barplot_single.tiff", sep="") #pdf(filename, paper = "USr", width = 10, height = 7.5)
+  tiff(filename, width=2000, height=1500)
+  par(mfrow = c (1, 1))
+  data.sub <- core.metadata[core.metadata$Phylum == phyl,] #phylum subset
+  classRanks <-sort(unlist(as.list(tapply(data.sub$count, data.sub$featClass, sum))))#feat sums
+  plot.title <- paste(phyl, " Overall Microbiomes", sep="")
+  print(
+    ggplot(data=data.sub, aes(x=interaction(SampleID, tax.order), y=count)) +
+    geom_bar(position="fill", stat="identity", width=0.9) + 
+    aes(fill=featClass, group=featClass) + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    scale_y_continuous(expand = c(0,0)) +
+    discrete_scale("fill", "manual", palette_Dark2, breaks=rev(names(classRanks))) +
+    ggtitle(plot.title) + theme(plot.title = element_text(hjust = 0.5, size=28)) +
+    theme(axis.text.x=element_text(angle=90, hjust=1, vjust = 0.2, size=18), axis.text.y = element_text(size=19)) + #, color = ocean.col[unlist(lapply(strsplit(sort(as.character(unique(interaction(data.sub$tax.order, data.sub$SampleID, data.sub$Ocean, sep = "-")))), "-", fixed=TRUE), function(x) x[3]))])) +
+    theme(legend.text=element_text(size=16), legend.key.size = unit(0.3,"cm"), legend.position ="bottom", legend.key.height=unit(0.1, "cm"), legend.key.width = unit(0.2, "cm"), legend.direction = "vertical", legend.title = element_text(size=19)) +
+  labs(x="Host Species", y="Abundance", fill="Microbial Class") + theme(axis.title = element_text(size=19)) +
+   scale_x_discrete(labels = make_labels, expand = c(0,0)) + 
+  theme(strip.text.x = element_text(margin = margin(0,0,0,0, "cm")))
+  )
+  dev.off()
+}
+```
+
+Mollusca overall:
+```{r}
+phyl <-"Mollusca"
+  filename <- paste("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/R_barplots/core/plain_",  phyl, "1_accessory_barplot_single.tiff", sep="") #pdf(filename, paper = "USr", width = 10, height = 7.5)
+  tiff(filename, width=2000, height=1500)
+  par(mfrow = c (1, 1))
+  data.sub <- core.metadata[core.metadata$Phylum == phyl & core.metadata$Component != "core" & core.metadata$Class != "Gastropoda",]
+  classRanks <-sort(unlist(as.list(tapply(data.sub$count, data.sub$featClass, sum))))
+  #classRanks <- classRanks[18:length(classRanks)]
+  plot.title <- paste(phyl, " Accessory Microbiomes - 1 of 3", sep="")
+  print(
+    ggplot(data=data.sub, aes(x=interaction(SampleID, tax.order), y=count)) +
+    geom_bar(position="fill", stat="identity", width=0.9) + 
+    aes(fill=featClass, group=featClass) + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    scale_y_continuous(expand = c(0,0)) +
+    discrete_scale("fill", "manual", palette_Dark2, breaks=rev(names(classRanks))) +
+    ggtitle(plot.title) + theme(plot.title = element_text(hjust = 0.5, size=28)) +
+    theme(axis.text.x=element_text(angle=90, hjust=1, vjust = 0.2, size=18), axis.text.y = element_text(size=19)) + 
+    theme(legend.text=element_text(size=16), legend.key.size = unit(0.3,"cm"), legend.position ="bottom", legend.key.height=unit(0.1, "cm"), legend.key.width = unit(0.2, "cm"), legend.direction = "vertical", legend.title = element_text(size=19)) +
+  labs(x="Host Species", y="Abundance", fill="Microbial Class") + theme(axis.title = element_text(size=19)) +
+   scale_x_discrete(labels = make_labels, expand = c(0,0)) + 
+  theme(strip.text.x = element_text(margin = margin(0,0,0,0, "cm")))
+  )
+```
+
+Mollusca core:
+```{r}
+phyl <- "Mollusca"
+  filename <- paste("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/R_barplots/species_core/plain", phyl, "3_core_barplot_species.tiff", sep="") #pdf(filename, paper = "USr", width = 10, height = 7.5)
+  tiff(filename, width=2000, height= 1500)
+  par(mfrow = c (1, 1))
+  data.sub <- core.metadata[core.metadata$Phylum == phyl & core.metadata$Component == "core" & core.metadata$Class == "Gastropoda" & core.metadata$Genus == "Caecum",]
+  sppRanks <- sort(unlist(as.list(tapply(data.sub$count, data.sub$featspecies, sum))))
+  sppRanks <- sppRanks[36:length(sppRanks)]
+  sppRanks[1:35]
+  plot.title <- paste(phyl, " Core Microbiomes - 3 of 3", sep="")
+  print(
+    ggplot(data=data.sub, aes(x=interaction(SampleID, tax.order), y=count)) +
+    geom_bar(position="fill", stat="identity", width=0.9) + 
+    aes(fill=featspecies, group=featspecies) + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    scale_y_continuous(expand = c(0,0)) +
+    discrete_scale("fill", "manual", palette_Dark2, breaks=rev(names(sppRanks))) +
+    ggtitle(plot.title) + theme(plot.title = element_text(hjust = 0.5, size=28)) +
+    theme(axis.text.x=element_text(angle=90, hjust=1, vjust = 0.2, size=18), axis.text.y = element_text(size=19)) + 
+    theme(legend.text=element_text(size=16), legend.key.size = unit(0.3,"cm"), legend.position ="bottom", legend.key.height=unit(0.1, "cm"), legend.key.width = unit(0.25, "cm"), legend.direction = "vertical", legend.title = element_text(size=17)) +
+  labs(x="Host Species", y="Abundance", fill="Microbial Species") + theme(axis.title = element_text(size=17)) +
+   scale_x_discrete(labels = make_labels, expand = c(0,0)) + 
+  theme(strip.text.x = element_text(margin = margin(0,0,0,0, "cm")))
+  )
+```
+
+
+Saving together for presentation figure:
+```{r}
+filename <- "/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/R_barplots/core_phyla_barplot_legend2.tiff"
+  tiff(filename, width=4000, height=1500)
+  par(mfrow = c (1, 1))
+  data.sub <- core.metadata[core.metadata$Phylum == "Environmental DNA" & core.metadata$Component == "core",] #phylum subset
+  #data.sub$Phylum <- ordered(data.sub$Phylum, c("Environmental DNA", "Annelida", "Gastrotricha", "Mollusca", "Nemertea"))
+  classRanks <-sort(unlist(as.list(tapply(data.sub$count, data.sub$featClass, sum))))
+  sppRanks <- sort(unlist(as.list(tapply(data.sub$count, data.sub$featspecies, sum))))
+  print(
+    ggplot(data=data.sub, aes(x=interaction(SampleID, tax.order), y=count)) +
+    geom_bar(position="fill", stat="identity", width=0.9) + 
+    aes(fill=featspecies, group=featspecies) + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    scale_y_continuous(expand = c(0,0)) +
+    discrete_scale("fill", "manual", palette_Dark2, breaks=rev(names(sppRanks))) +
+    ggtitle("Environmental Core Microbiome") + theme(plot.title = element_text(hjust = 0.5, size=23)) +
+    theme(legend.text=element_text(size=13), legend.key.size = unit(0.1,"cm"), legend.position ="right", legend.key.height=unit(0.2, "cm"), legend.direction = "vertical") +
+  labs(x="Host Species", y="Abundance", fill="Microbial Species") +
+   scale_x_discrete(labels = make_labels, expand = c(0,0)) +
+  facet_wrap(~Phylum, nrow=2, scales = "free_x") + theme(strip.text.x = element_text(size=20)) +
+      theme(axis.text.x=element_text(angle=90, hjust=1, vjust = 0.2, size=10))
+  )
+  dev.off()
+  #sum(data.sub$count)
+```
+
+
+Need to fix some issues with location data
+```{r}
+#save.image("/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/env_metadata/fix_locs.RData")
+load("/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/env_metadata/fix_locs.RData")
+fixing.locs <- able("/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/Krystalles_project_17Sept2018_fullmap_fixedlocs.tsv", sep="\t", header=T, stringsAsFactors=F, quote="")
+env.data <- read.table("/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/env_metadata/environmental_data.txt", sep="\t", header=T, stringsAsFactors=F, quote="")
+fixing.locs$fingerprint <- paste(fixing.locs$PlateNum, fixing.locs$Well, sep=".")
+pan.env <- read.table("/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/env_metadata/Panama_2016_edited.txt", sep="\t", header=T, stringsAsFactors=F, quote="")
+pan.env$Longitude<- pan.env$Longitude * -1
+new.table <- merge(fixing.locs, env.data, by = "fingerprint", all.x = TRUE, all.y=TRUE)
+new.table$Date <- NULL #Station.x has been set to Station.y now
+new.table[is.na(new.table)] <- ""#change NA to blank
+colnames(new.table)
+
+#anything w/ a StationID in the Panama file is gonna get changed to match it
+for (station in pan.env[pan.env$StationID %in% new.table$StationID,]$StationID) {
+  new.table[new.table$StationID == station, ]$DateFull <- pan.env[pan.env$StationID == station, ]$Date
+  #new.table[new.table$StationID == station, ]$LocationDescription <- pan.env[pan.env$StationID == station, ]$LocationDescription
+  #new.table[new.table$StationID == station, ]$CoordinatesLat <- pan.env[pan.env$StationID == station, ]$Latitude
+  #new.table[new.table$StationID == station, ]$CoordinatesLong <- pan.env[pan.env$StationID == station, ]$Longitude
+  #new.table[new.table$StationID == station, ]$Region <- pan.env[pan.env$StationID == station, ]$Region
+  #new.table[new.table$StationID == station, ]$ExactSite <- pan.env[pan.env$StationID == station, ]$Region #also ExactSite
+  #new.table[new.table$StationID == station, ]$Ocean <- pan.env[pan.env$StationID == station, ]$Ocean
+}
+#write.table(new.table, "/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/Krystalles_project_17Sept2018_fullmap_fixedlocs.tsv",quote=FALSE,row.names = FALSE,sep = "\t")
+#write.table(analyzed.samps, "/Users/nekop/Box Sync/Krystalles_project_thesis/16S_all/fulllmap_analyzed_only_17Sept2018.tsv",quote=FALSE,row.names = FALSE,sep="\t")
+```

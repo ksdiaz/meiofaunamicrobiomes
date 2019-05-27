@@ -1,0 +1,97 @@
+Position,Template,Phylum,Location,Station,Date,time,Local name,Location details,Depth,Habitat description,Salinity,Tidel,Lat,Long
+A01,JN1460.02,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+B01,JN1466.01,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+C01,JN1467.02,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+D01,JN1470.02,Nemertea,Panama_Naos-Pacific,20,12.09.2011,09h00m,Tombolo West,Taboga,intertidal,"medium-coarse sand and ripple marks close to swash zone, small waves",28,low tide 0.6m,8.801486111,79.55433889
+E01,JN1485.01,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+F01,JN1455.05,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+G01,blank,blank,blank,,,,,,,,,,,
+H01,blank,blank,blank,,,,,,,,,,,
+A02,JN1461.01,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+B02,JN1466.02,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+C02,JN1458.05,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+D02,JN1470.03,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+E02,JN1485.02,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+F02,JN1488.02,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+G02,blank,blank,blank,,,,,,,,,,,
+H02,blank,blank,blank,,,,,,,,,,,
+A03,JN1461.02,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+B03,JN1466.03,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+C03,JN1470.01,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+D03,JN1470.04,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+E03,JN1486.01,Nemertea,Panama_Naos-Pacific,11,12.06.2011,10h00m,Las Perlas,Las Perlas,20m,"Dive 1, coarse sand, with shells, sponges, etc…",30,medium level tide 2.5m,8.387825,79.12551667
+F03,JN1488.03,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+G03,blank,blank,blank,,,,,,,,,,,
+H03,blank,blank,blank,,,,,,,,,,,
+A04,JN1461.03,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+B04,JN1467.01,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+C04,SIPUNCULA,SIPUNCULA,Panama_Naos-Pacific,11,12.06.2011,10h00m,Las Perlas,Las Perlas,20m,"Dive 1, coarse sand, with shells, sponges, etc…",30,medium level tide 2.5m,8.387825,79.12551667
+D04,JN1476.01,Nemertea,Panama_Naos-Pacific,20,12.09.2011,09h00m,Tombolo West,Taboga,intertidal,"medium-coarse sand and ripple marks close to swash zone, small waves",28,low tide 0.6m,8.801486111,79.55433889
+E04,JN1476.02,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+F04,PLUSCULA,Mollusca,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+G04,blank,blank,blank,,,,,,,,,,,
+H04,blank,blank,blank,,,,,,,,,,,
+A05,JN1458.02,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+B05,JN1463.02,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+C05,JN1471.01,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+D05,JN1477.01,Nemertea,Panama_Naos-Pacific,23,12.09.2011,09h00m,Tombolo East,Taboga,intertidal,"coarse to pebble sediment, swash zone, without waves",28,low tide 0.6m,8.800458333,79.55451111
+E05,JN1476.03,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+F05,JN1470.06,Nemertea,Panama_Naos-Pacific,20,12.09.2011,09h00m,Tombolo West,Taboga,intertidal,"medium-coarse sand and ripple marks close to swash zone, small waves",28,low tide 0.6m,8.801486111,79.55433889
+G05,blank,blank,blank,,,,,,,,,,,
+H05,blank,blank,blank,,,,,,,,,,,
+A06,JN1461.04,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+B06,JN1465.02,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+C06,JN1472.01,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+D06,JN1479.01,Nemertea,Panama_Naos-Pacific,18,12.09.2011,09h00m,Dive beach,Taboga,9m,"Dive in front of west face of Tombolo beach, sand, colected with buckets, fine sediment",30,low tide 0.6m,8.803608333,79.55408889
+E06,JN1488.01,Nemertea,Panama_Naos-Pacific,28,12.12.2011,10h00m,Dive 1,Isla Pacheco,15m,Medium-coarse sand,28,low tide 0.5m,8.672858333,79.06093333
+F06,JN1470.07,Nemertea,Panama_Naos-Pacific,20,12.09.2011,09h00m,Tombolo West,Taboga,intertidal,"medium-coarse sand and ripple marks close to swash zone, small waves",28,low tide 0.6m,8.801486111,79.55433889
+G06,blank,blank,blank,,,,,,,,,,,
+H06,blank,blank,blank,,,,,,,,,,,
+A07,JN1461.05,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+B07,JN1468.01,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+C07,JN1467.03,Nemertea,Panama_Naos-Pacific,23,12.09.2011,09h00m,Tombolo East,Taboga,intertidal,"coarse to pebble sediment, swash zone, without waves",28,low tide 0.6m,8.800458333,79.55451111
+D07,JN1478.01,Nemertea,Panama_Naos-Pacific,18,12.09.2011,09h00m,Dive beach,Taboga,9m,"Dive in front of west face of Tombolo beach, sand, colected with buckets, fine sediment",30,low tide 0.6m,8.803608333,79.55408889
+E07,JN1487.02,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+F07,JN1487.03,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+G07,blank,blank,blank,,,,,,,,,,,
+H07,blank,blank,blank,,,,,,,,,,,
+A08,JN1456.03,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+B08,JN1465.03,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+C08,JN1473.01,Nemertea,Panama_Naos-Pacific,19,12.09.2011,09h00m,Dive coral,Taboga,8m,"Dive betwenn island, coarse-medium sand, colected with buckets",30,low tide 0.6m,8.782305556,79.53695
+D08,JN1481.01,Nemertea,Panama_Naos-Pacific,11,12.06.2011,10h00m,Las Perlas,Las Perlas,20m,"Dive 1, coarse sand, with shells, sponges, etc…",30,medium level tide 2.5m,8.387825,79.12551667
+E08,JN1482.02,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+F08,JN1457.02,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+G08,blank,blank,blank,,,,,,,,,,,
+H08,blank,blank,blank,,,,,,,,,,,
+A09,JN1464.01,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+B09,JN1458.03,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+C09,JN1467.04,Nemertea,Panama_Naos-Pacific,19,12.09.2011,09h00m,Dive coral,Taboga,8m,"Dive betwenn island, coarse-medium sand, colected with buckets",30,low tide 0.6m,8.782305556,79.53695
+D09,JN1483.01,Nemertea,Panama_Naos-Pacific,11,12.06.2011,10h00m,Las Perlas,Las Perlas,20m,"Dive 1, coarse sand, with shells, sponges, etc…",30,medium level tide 2.5m,8.387825,79.12551667
+E09,JN1464.02,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+F09,blank,blank,blank,,,,,,,,,,,
+G09,blank,blank,blank,,,,,,,,,,,
+H09,blank,blank,blank,,,,,,,,,,,
+A10,JN1463.01,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+B10,JN1458.04,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+C10,JN1475.01,Nemertea,Panama_Naos-Pacific,22,12.09.2011,09h00m,Coral reef,Taboga,10-6m,"mixed sediments, medium to coarse close to coral reef",30,low tide 0.6m,8.782305556,79.53695
+D10,JN1484.01,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+E10,JN1455.04,Nemertea,Panama_Naos-Pacific,1,12.01.2011,15h25m,Naos beach,Front of Naos lab,intertidal,"Shelly coarse sand, gravels and fine sediment",,Low tide 0.63,8.915833333,79.530575
+F10,blank,blank,blank,,,,,,,,,,,
+G10,blank,blank,blank,,,,,,,,,,,
+H10,blank,blank,blank,,,,,,,,,,,
+A11,JN1465.01,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+B11,JN1469.01,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+C11,JN1463.03,Nemertea,Panama_Naos-Pacific,22,12.09.2011,09h00m,Coral reef,Taboga,10-6m,"mixed sediments, medium to coarse close to coral reef",30,low tide 0.6m,8.782305556,79.53695
+D11,JN1467.06,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+E11,JN1472.03,Nemertea,Panama_Naos-Pacific,28a,12.12.2011,10h00m,Beach,Isla Pacheco,intertidal,"Pebbles, beach",28,low tide 0.5m,8.672858333,79.06093333
+F11,blank,blank,blank,,,,,,,,,,,
+G11,blank,blank,blank,,,,,,,,,,,
+H11,blank,blank,blank,,,,,,,,,,,
+A12,JN1461.07,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+B12,JN1456.05,Nemertea,Panama_Naos-Pacific,,,,,,,,,,,
+C12,JN1462.02,Nemertea,Panama_Naos-Pacific,22,12.09.2011,09h00m,Coral reef,Taboga,10-6m,"mixed sediments, medium to coarse close to coral reef",30,low tide 0.6m,8.782305556,79.53695
+D12,JN1472.02,Nemertea,Panama_Naos-Pacific,29,12.12.2011,10h00m,Dive 2,Isla Bartolome,intertidal,"Coraline sand, very coarse to medium",28,low tide 0.5m,8.671077778,79.064875
+E12,JN1472.04,Nemertea,Panama_Naos-Pacific,28a,12.12.2011,10h00m,Beach,Isla Pacheco,intertidal,"Pebbles, beach",28,low tide 0.5m,8.672858333,79.06093333
+F12,blank,blank,blank,,,,,,,,,,,
+G12,blank,blank,blank,,,,,,,,,,,
+H12,blank,blank,blank,,,,,,,,,,,

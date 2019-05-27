@@ -1,0 +1,97 @@
+Sample ID,Phylum,Class,Order,Family,Genus,species,Identifier,Plate ID,Station ID,#Barcode,18S,Depths,Salinity,CoordinatesLat,CoordinatesLong
+A01,Platyhelminthes,Rhabditophora ,Lecithoepitheliata ,Gnosonesimidae ,Gnosonesima,,TArtois,FG01,3S,199440863,YES,4,38,7.629505,79.997198
+B01,Nemertea,Palaeonemertea ,,Cephalotrichidae,Cephalothrix,sp,JNorenburg,FG01,4,199440840,YES,4,38,7.414536,80.176523
+C01,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,macintoshi,JNorenburg,FG01,NA,199440839,YES,NA,NA,NA,NA
+D01,Nemertea,Enopla,Monostilifera ,,"""Posterior 2-eye""",sp,JNorenburg,FG01,10,199440816,YES,3,36,7.431466,80.196173
+E01,Nemertea,Paleonemertea,,Carinomidae?,Carinoma?,"""2-eye""",JNorenburg,FG01,10,199440815,YES,3,36,7.431466,80.196173
+F01,Nemertea,Enopla,Monostilifera ,,"""Posterior 2-eye""",sp,JNorenburg,FG01,10,199440792,YES,3,36,7.431466,80.196173
+G01,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,fila,JNorenburg,FG01,1B,199440791,YES,0,38,7.413194,80.173649
+H01,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,duplex,JNorenburg,FG01,1B,199440768,YES,0,38,7.413194,80.173649
+A02,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,duplex,JNorenburg,FG01,1A,199440862,YES,0,38,7.413194,80.173649
+B02,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,duplex,JNorenburg,FG01,1A,199440841,YES,0,38,7.413194,80.173649
+C02,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,duplex,JNorenburg,FG01,1A,199440838,YES,0,38,7.413194,80.173649
+D02,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,fila,JNorenburg,FG01,1A,199440817,YES,0,38,7.413194,80.173649
+E02,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,lactea,JNorenburg,FG01,1A,199440814,YES,0,38,7.413194,80.173649
+F02,Nemertea,Enopla,Monostilifera ,Tetrastemmatidae,"""Tetrastemma""",sp,JNorenburg,FG01,13,199440793,YES,0,40,7.413194,80.172282
+H02,Nemertea,Enopla,Monostilifera ,,Poseidonemertes,sp,JNorenburg,FG01,14,199440769,YES,12,38,7.620714,80.0013
+A03,Nemertea,Paleonemertea,,Cephalotrichidae,Cephalothrix,"""interstitial""",JNorenburg,FG01,14,199440861,YES,12,38,7.620714,80.0013
+B03,Nemertea,Paleonemertea,,Tubulanidae,Tubulanus,sp,JNorenburg,FG01,14,199440842,YES,12,38,7.620714,80.0013
+C03,Nemertea,Enopla,Monostilifera ,,Poseidonemertes,sp,JNorenburg,FG01,15,199440837,YES,16,38,7.63008,80.002171
+D03,Nemertea,Enopla,Monostilifera ,,Poseidonemertes,sp,JNorenburg,FG01,15,199440818,YES,16,38,7.63008,80.002171
+E03,Nemertea,Paleonemertea,,Tubulanidae,Carinomella?,sp,JNorenburg,FG01,15,199440813,YES,16,38,7.63008,80.002171
+F03,Nemertea,Pilidiophora,,Lineidae,"""Juvenile""",sp,JNorenburg,FG01,15,199440794,NO,16,38,7.63008,80.002171
+G03,Nemertea,Pilidiophora,,Lineidae,"""cirrus""","""juvenile""",JNorenburg,FG01,15,199440789,YES,16,38,7.63008,80.002171
+H03,Nemertea,Paleonemertea,,Carinomidae?,Carinoma?,sp,JNorenburg,FG01,15,199440770,YES,16,38,7.63008,80.002171
+A04,Nemertea,Enopla,Monostilifera ,,Poseidonemertes,,JNorenburg,FG01,15,199440860,YES,16,38,7.63008,80.002171
+B04,Nemertea,Pilidiophora,,,Riserius,sp,JNorenburg,FG01,15,199440843,NO,16,38,7.63008,80.002171
+C04,Annelida,Polychaeta,,Protodrilidae ,Protodrilus,,JNorenburg,FG01,14,199440836,YES,12,38,7.620714,80.0013
+D04,Nemertea,Enopla,Monostilifera ,Tetrastemmatidae ,Prostomatella?,sp,JNorenburg,FG01,14,199440819,YES,12,38,7.620714,80.0013
+E04,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,14,199440812,YES,12,38,7.620714,80.0013
+F04,Annelida,Polychaeta,,,"""palp or tentacle""",,JNorenburg,FG01,15,199440795,YES,16,38,7.63008,80.002171
+G04,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,14,199440788,YES,12,38,7.620714,80.0013
+H04,Nemertea,Enopla,Monostilifera ,,Poseidonemertes?,sp,JNorenburg,FG01,14,199440771,YES,12,38,7.620714,80.0013
+A05,Nemertea,Paleonemertea,,,,,JNorenburg,FG01,14,199440859,YES,12,38,7.620714,80.0013
+B05,Nemertea,Enopla,Monostilifera ,Tetrastemmatidae ,Prostomatella,enteroplecta,JNorenburg,FG01,14,199440844,YES,12,38,7.620714,80.0013
+C05,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,14,199440835,YES,12,38,7.620714,80.0013
+D05,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,14,199440820,YES,12,38,7.620714,80.0013
+E05,Nemertea,Enopla,Monostilifera ,,Zygonemertes?,sp,JNorenburg,FG01,15,199440811,YES,16,38,7.63008,80.002171
+F05,Nemertea,Paleonemertea,,Hubrechtidae,Hubrechtella,dubia,JNorenburg,FG01,15,199440796,YES,16,38,7.63008,80.002171
+G05,Nemertea,Paleonemertea,,,?,sp,JNorenburg,FG01,15,199440787,YES,16,38,7.63008,80.002171
+H05,Platyhelminthes,,,,,,JNorenburg,FG01,12,199440772,YES,0,38,7.411945,80.173545
+A06,Nemertea,Pilidiophora,,Lineidae,,,JNorenburg,FG01,14,199440858,YES,12,38,7.620714,80.0013
+B06,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,pallida,JNorenburg,FG01,12,199440845,YES,0,38,7.411945,80.173545
+C06,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,12,199440834,YES,0,38,7.411945,80.173545
+D06,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,duplex,JNorenburg,FG01,12,199440821,YES,0,38,7.411945,80.173545
+E06,Cnidaria,Hydrozoa,Anthoathecata,Corymorphidae,Euphysa?,sp,JNorenburg,FG01,14,199440810,YES,12,38,7.620714,80.0013
+F06,Platyhelminthes,Rhabditophora ,Lecithoepitheliata ,Gnosonesimidae ,Gnosonesima,,TArtois,FG01,14,199440797,NO,12,38,7.620714,80.0013
+G06,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba?,JNorenburg,FG01,14,199440786,YES,12,38,7.620714,80.0013
+H06,Nemertea,Palaeonemertea ,,Carinomidae?,Carinoma?,sp,JNorenburg,FG01,14,199440773,YES,12,38,7.620714,80.0013
+A07,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,14,199440857,YES,12,38,7.620714,80.0013
+B07,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,14,199440846,YES,12,38,7.620714,80.0013
+C07,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,14,199440833,YES,12,38,7.620714,80.0013
+D07,Platyhelminthes,Rhabditophora ,Lecithoepitheliata ,Gnosonesimidae ,Gnosonesima,,TArtois,FG01,14,199440822,YES,12,38,7.620714,80.0013
+E07,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,pallida,JNorenburg,FG01,18E,199440809,YES,0.8,38,9.539919,79.675449
+F07,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,pallida,JNorenburg,FG01,18E,199440798,YES,0.8,38,9.539919,79.675449
+G07,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,pallida,JNorenburg,FG01,18E,199440785,YES,0.8,38,9.539919,79.675449
+H07,Nemertea,Palaeonemertea ,,Cephalotrichidae,Cephalothrix,"""orange head""",JNorenburg,FG01,18E,199440774,YES,0.8,38,9.539919,79.675449
+A08,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,pallida,JNorenburg,FG01,18E,199440856,YES,0.8,38,9.539919,79.675449
+B08,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,14,199440847,YES,12,38,7.620714,80.0013
+C08,Nemertea,Palaeonemertea ,,Cephalotrichidae,Cephalothrix,"""orange head""",JNorenburg,FG01,18E,199440832,YES,0.8,38,9.539919,79.675449
+D08,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,pallida,JNorenburg,FG01,18E,199440823,YES,0.8,38,9.539919,79.675449
+E08,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,lactea,JNorenburg,FG01,18B,199440808,YES,0,38,9.539919,79.675449
+F08,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,lactea,JNorenburg,FG01,18B,199440799,YES,0,38,9.539919,79.675449
+G08,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,duplex,JNorenburg,FG01,18B,199440784,YES,0,38,9.539919,79.675449
+H08,Nemertea,Palaeonemertea ,,Cephalotrichidae,Cephalothrix,alba,JNorenburg,FG01,18B,199440775,YES,0,38,9.539919,79.675449
+A09,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,macintoshi,JNorenburg,FG01,18B,199440855,YES,0,38,9.539919,79.675449
+B09,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,duplex,JNorenburg,FG01,18B,199440848,YES,0,38,9.539919,79.675449
+C09,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,pallida,JNorenburg,FG01,18E,199440831,YES,0.8,38,9.539919,79.675449
+D09,Sipuncula,,,,,,JNorenburg,FG01,19,199440824,YES,0,38,9.469556,79.725027
+E09,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,pallida,JNorenburg,FG01,18E,199440807,YES,0.8,38,9.539919,79.675449
+F09,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,pallida,JNorenburg,FG01,18E,199440800,YES,0.8,38,9.539919,79.675449
+G09,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,pallida,JNorenburg,FG01,18E,199440783,YES,0.8,38,9.539919,79.675449
+H09,Nemertea,Enopla,Monostilifera,,Prostomatella?,sp,JNorenburg,FG01,22B,199440776,YES,12,38,7.629492,79.995921
+A10,Nemertea,Palaeonemertea ,,Cephalotrichidae,Cephalothrix,"""interstitial""",JNorenburg,FG01,22B,199440854,YES,12,38,7.629492,79.995921
+B10,Platyhelminthes,Rhabditophora ,Polycladida,,,,TArtois,FG01,23S,199440849,YES,10,38,7.63423,79.997292
+C10,Nemertea,Paleonemertea,,Tubulanidae,Carinomella?,sp,JNorenburg,FG01,23S,199440830,YES,10,38,7.63423,79.997292
+D10,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440825,YES,6,38,7.629548,79.997056
+E10,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440806,YES,6,38,7.629548,79.997056
+F10,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440801,YES,6,38,7.629548,79.997056
+G10,Nemertea,Enopla,Monostilifera ,Amphiporidae,Zygonemertes,sp,JNorenburg,FG01,7,199440782,YES,0,38,7.414615,80.173701
+H10,Nemertea,Palaeonemertea ,,Cephalotrichidae,Cephalothrix,alba,JNorenburg,FG01,22S,199440777,YES,6,38,7.629548,79.997056
+A11,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440853,YES,6,38,7.629548,79.997056
+B11,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440850,YES,6,38,7.629548,79.997056
+C11,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,sp,JNorenburg,FG01,22S,199440829,YES,6,38,7.629548,79.997056
+D11,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,macintoshi,JNorenburg,FG01,22S,199440826,YES,6,38,7.629548,79.997056
+E11,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440805,YES,6,38,7.629548,79.997056
+F11,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440802,YES,6,38,7.629548,79.997056
+G11,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440781,YES,6,38,7.629548,79.997056
+H11,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440778,YES,6,38,7.629548,79.997056
+A12,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440852,YES,6,38,7.629548,79.997056
+B12,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440851,YES,6,38,7.629548,79.997056
+C12,Nemertea,Paleonemertea,,Cephalotrichidae,Cephalothrix,"""interstitial""",JNorenburg,FG01,1A,199440828,YES,0,38,7.413194,80.173649
+D12,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440827,YES,6,38,7.629548,79.997056
+E12,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440804,YES,6,38,7.629548,79.997056
+F12,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440803,YES,6,38,7.629548,79.997056
+G12,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440780,YES,6,38,7.629548,79.997056
+H12,Nemertea,Enopla,Monostilifera ,Ototyphlonemertidae,Ototyphlonemertes,erneba,JNorenburg,FG01,22S,199440779,YES,6,38,7.629548,79.997056
+G02,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty,empty
