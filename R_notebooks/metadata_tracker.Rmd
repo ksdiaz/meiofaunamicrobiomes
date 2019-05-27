@@ -1,0 +1,268 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+
+```{r}
+setwd("/Users/krystallediaz/Box Sync/16S_all/")
+#load("/Users/krystallediaz/Documents/Research/16S_all/Pool6/mapping_files.RData")
+save.image("/Users/krystallediaz/Box Sync/16S_all/plate_tables.RData")
+#save.image("/Users/krystallediaz/Documents/Research/16S_all/plate_tables.RData")
+```
+
+Read in the tables: (9 Jan 2018)
+```{r}
+demux.full <- read.table("master_demux.txt", sep="\t", header=T, stringsAsFactors=F, quote="")
+mast.table <- read.table("Krystalles_project_8Jan2018.tsv", sep="\t", header=T, stringsAsFactors=F, quote="") #had to edit column names in Excel because they had # signs
+panama.2016.env <- read.table("env_metadata/Panama_2016_edited.txt", sep="\t", header=T, stringsAsFactors=F, quote="") 
+full.map.new <- read.table("/Users/krystallediaz/Documents/Research/16S_all/metadata_plates1thru12_27Nov2017.tsv", header=T, sep='\t',stringsAsFactors=F,quote="")
+```
+
+
+Dealing with any issues in the imported data:
+```{r}
+#Demux table:
+colnames(demux.full)[11:15] <- c("PercRawClustersPerLane", "PerfcPerfectIndexReads", "PercOneMismatchReads","PercOfMoreThanQ30Bases", "MeanQualScore.PF")
+#demux.full$Control <- NULL
+#demux.full$index <- paste(demux.full$PlateNum, demux.full$Well, sep="")
+#Panama 2016 metadata:
+#panama.2016.env$Coordinates <- NULL
+panama.2016.env$Collectors <- gsub("\"","",panama.2016.env$Collectors, fixed=T) #removing quotation marks
+panama.2016.env$LocationDescription <- gsub("\"","",panama.2016.env$LocationDescription, fixed=T) 
+panama.2016.env$Tide <- gsub("\"","",panama.2016.env$Tide, fixed=T) 
+panama.2016.env$Depths <- gsub("\"","",panama.2016.env$Depths, fixed=T) 
+panama.2016.env$Habitat.remarks <- gsub("\"","",panama.2016.env$Habitat.remarks, fixed=T)
+panama.2016.env$Type.grain <- gsub("\"","",panama.2016.env$Type.grain, fixed=T)
+colnames(panama.2016.env) #"StationID", "Date", "Collectors", ""
+unique(map.all$Station_ID)
+#Plate metadata:
+env.data <- read.table("env_metadata/environmental_data.txt", sep="\t", header=T, stringsAsFactors=F, quote="") 
+env.data$LocationDescription <- gsub("\"","",env.data$LocationDescription, fixed=T) 
+env.data$HabitatDescrip <- gsub("\"","",env.data$HabitatDescrip, fixed=T) 
+env.data$ExactSite <- gsub("\"","",env.data$ExactSite, fixed=T) 
+```
+
+
+```{r}
+mast.table$fingerprint <- paste(mast.table$PlateNum, mast.table$Well, sep=".")
+#creating the mapping file:
+#length(demux.full[demux.full$fingerprint %in% mast.table$fingerprint, ]$SampleID) #1664
+#length(merge(demux.full, mast.table, by="fingerprint")$SampleID) #1664
+map.all <- merge(mast.table, demux.full, by="fingerprint", all.x = T, sort = F)
+map.all$Well.y <- NULL
+map.all$PlateNum.y <- NULL #colnames(map.all)
+#replace.sheet <- merge(mast.table, demux.full, by="fingerprint", all.x = T, sort = F)
+```
+
+```{r}
+unique(map.all$Station_ID)#unique(env.data$StationID)
+length(map.all[map.all$Station_ID == "",]$Station_ID) #824 blank StationIDs ; 843 not blank
+map.all[map.all$Station_ID == "" & map.all$fingerprint %in% env.data$fingerprint, ]$Station_ID
+map.all <-  merge(map.all, env.data, by="fingerprint", sort=F,all.x=T)
+map.all$Well <- NULL
+```
+
+
+```{r}
+#Metadata table:
+mast.table$Salinity <- as.numeric(mast.table$Salinity) #NAs introduced by coercion
+mast.table$Depth <- as.numeric(mast.table$Depth) #NAs introduced by coercion
+mast.table[is.na(mast.table)] <- "" #set NA to blank
+unique(mast.table$Station_ID)
+#for (stat in map.all$Station_ID) {
+#  map.all$test <- ifelse(map.all$Station_ID == "", map.all$StationID, map.all$Station_ID)
+#  length(map.all[map.all$test == "",]$test)
+#  map.all$test <- NULL  #}
+map.all[is.na(map.all)] <- ""
+map.all$Station_ID <- ifelse(map.all$Station_ID == "", map.all$StationID, map.all$Station_ID) #replace blanks with existing data
+map.all$Salinity.x <- ifelse(map.all$Salinity.y != "", map.all$Salinity.y, map.all$Salinity.x)
+map.all$CoordinatesLat <- ifelse(map.all$Latitude != "", map.all$Latitude, map.all$CoordinatesLat)
+map.all$CoordinatesLong <- ifelse(map.all$Longitude != "", map.all$Longitude, map.all$CoordinatesLong)
+map.all$DateFull <- ifelse(map.all$DateFull == "", map.all$Date, map.all$DateFull)
+map.all$Depth.x <- ifelse(map.all$Depth.y == "", map.all$Depth.x, map.all$Depth.y)
+map.all$StationID <- NULL
+map.all$NumReads.x <- NULL
+map.all$Salinity.y <- NULL
+map.all$Latitude <- NULL
+map.all$Longitude <- NULL
+map.all$Date <- NULL
+map.all$Depth.y <- NULL
+
+colnames(map.all)
+#View(map.all[map.all$Station_ID %in% panama.2016.env$StationID & map.all$ExactSite !="", ])
+unique(map.all$ExactSite)
+unique(map.all$DepthsDescription)
+```
+
+And now merging Panama metadata, as above:
+```{r}
+##11 Jan 2018 : editing stuff from the Panama sheet
+#colnames(panama.2016.env)[15] <- "DepthsDescription"
+colnames(panama.2016.env)[11] <- "TideDescription"
+panama.2016.env$Longitude <- panama.2016.env$Longitude * -1 
+#
+map.all$CoordinatesLat <- ifelse(map.all$Station_ID %in% panama.2016.env$StationID, panama.2016.env$Latitude, map.all$CoordinatesLat)
+map.all$CoordinatesLong <- ifelse(map.all$Station_ID %in% panama.2016.env$StationID, panama.2016.env$Longitude, map.all$CoordinatesLong)
+map.all$Latitude <- ifelse(map.all$Latitude == "", map.all$CoordinatesLat, map.all$Latitude)
+map.all$Longitude <- ifelse(map.all$Longitude == "", map.all$CoordinatesLong, map.all$Longitude)
+map.all$CoordinatesLat <- NULL
+map.all$CoordinatesLong <- NULL
+
+#these broke matches somehow, do not use %in% to match properly
+map.all$DateFull <- ifelse(map.all$Station_ID %in% panama.2016.env$StationID, panama.2016.env$Date, map.all$DateFull)
+map.all$LocationDescription <- ifelse(map.all$Station_ID %in% panama.2016.env$StationID, panama.2016.env$LocationDescription, map.all$LocationDescription)
+map.all$DepthsDescription <- ifelse(map.all$Station_ID %in% panama.2016.env$StationID, panama.2016.env$DepthsDescription, map.all$DepthsDescription)
+map.all$HabitatDescrip <- ifelse(map.all$Station_ID %in% panama.2016.env$StationID, panama.2016.env$Habitat.remarks, map.all$HabitatDescrip)
+map.all$TideDescription <- ifelse(map.all$Station_ID %in% panama.2016.env$StationID, panama.2016.env$TideDescription, map.all$TideDescription)
+map.all$Region <- ifelse(map.all$Station_ID %in% panama.2016.env$StationID, panama.2016.env$Region, map.all$Region)
+#map.all$Region <- ifelse(map.all$Station_ID %in% panama.2016.env$StationID, panama.2016.env$Region, map.all$Region)
+map.all$Type.grain <- ifelse(map.all$Station_ID %in% panama.2016.env$StationID, panama.2016.env$Type.grain, "") #new column
+map.all$Depth.x <- NULL
+
+colnames(map.all)
+colnames(panama.2016.env)
+#unique(map.all$Depth.y)
+map.all$Depth.x <- ifelse(map.all$Station_ID %in% panama.2016.env$StationID & map.all$Depth.x == "", panama.2016.env$Depth.meters, map.all$Depth.y) #to know if exact or not
+```
+
+
+```{r}
+write.table(map.all, "Krystalles_project_out.txt",sep="\t", row.names = F, quote=F)
+```
+
+
+```{r}
+unique(map.all$Phylum)
+unique(map.all$Class)
+map.all$taxa.str <- paste(map.all$Phylum, map.all$Class, map.all$Order, map.all$Family, 
+        map.all$Genus, map.all$species, sep=";")
+sort(unique(map.all$taxa.str))
+```
+
+
+```{r}
+setwd("/Users/krystallediaz/Box Sync/16S_all/")
+load("/Users/krystallediaz/Box Sync/16S_all/taxatables.RData")
+#
+fixed.map <- read.table("Krystalles_project_15Feb2018_fullmap.tsv", sep="\t", header=T, stringsAsFactors=F, quote="")
+fixed.map[is.na(fixed.map)] <- ""
+ann.samps <- read.table("analyzed_samps.txt", sep="\t", header=T, stringsAsFactors=F, quote="")
+fixed.map$Analyzed <- ifelse(fixed.map$SampleID %in% ann.samps$SampleID, "yes", "")
+fixed.map <- fixed.map[fixed.map$Analyzed == "yes", ]
+#write.table(fixed.map[fixed.map$Analyzed == "yes", ], "fulllmap_analyzed_only_15Feb2018.tsv", sep="\t", row.names = F, quote=F)
+#write.table(fixed.map, "Krystalles_project_15Feb2018_fullmap.tsv", sep="\t", row.names = F, quote=F)
+unique(fixed.map$Ocean) #"Tropical West Atlantic" "Tropical East Pacific"  "Gulf of Mexico"  "North East Atlantic"    "North East Pacific" #for the full
+#in this one only: "Tropical West Atlantic" "Tropical East Pacific"  "Gulf of Mexico" 
+#View(fixed.map[fixed.map$Ocean == "Gulf of Mexico" & fixed.map$Phylum != "Environmental DNA", ])
+
+write.table(phyl.table2(fixed.map[fixed.map$Ocean == "Gulf of Mexico", ]), "phyla/phylabreakdown_20Jan2018_GOM_analyzed.txt",sep="\t", row.names = F, quote=F)
+write.table(phyl.table2(fixed.map[fixed.map$Ocean == "Tropical West Atlantic", ]), "phyla/phylabreakdown_20Jan2018_TWA_analyzed.txt",sep="\t", row.names = F, quote=F)
+write.table(phyl.table2(fixed.map[fixed.map$Ocean == "Tropical East Pacific", ]), "phyla/phylabreakdown_20Jan2018_TWP_analyzed.txt",sep="\t", row.names = F, quote=F)
+#write.table(phyl.table2(fixed.map[fixed.map$Ocean == "North East Atlantic", ]), "phylabreakdown_20Jan2018_NEA_analyzed.txt",sep="\t", row.names = F, quote=F)
+#none have made it- "Karen, I lost a ship on the North Atlantic..."
+#write.table(phyl.table2(fixed.map[fixed.map$Ocean == "North East Pacific", ]), "phylabreakdown_20Jan2018_NE_analyzedP.txt",sep="\t", row.names = F, quote=F)
+write.table(fixed.map[fixed.map$Ocean == "Gulf of Mexico", ], "phyla/locGOM_map.txt",sep="\t", row.names = F, quote=F)
+write.table(fixed.map[fixed.map$Ocean == "Tropical West Atlantic", ], "phyla/locTWA_map.txt", sep="\t", row.names = F, quote=F)
+write.table(fixed.map[fixed.map$Ocean == "Tropical East Pacific", ], "phyla/locTWP_map.txt", sep="\t", row.names = F, quote=F)
+
+write.table(fixed.map[fixed.map$Phylum == "Environmental DNA", ], "phyla/environmental_map.txt", sep="\t", row.names = F, quote=F)
+```
+
+```{r}
+
+```
+
+
+Splitting the tables by phyla:
+```{r}
+#Annelida; Gastrotricha; Mollusca; Nemertea; Platyhelminthes
+five.phyla <- c("Annelida", "Gastrotricha", "Mollusca", "Nemertea", "Platyhelminthes")
+for (phyl in five.phyla) {
+  #filename.phyl <- paste("phyla/phyl", phyl, "_map.txt", sep="")
+  sub.table <- fixed.map[fixed.map$Phylum == phyl, ]
+  #write.table(sub.table, filename.phyl, sep="\t", row.names = F, quote=F)
+  sub.table$Class.str <- paste(x.map$Phylum, x.map$Class, sep=";")
+  sub.table$Order.str <- paste(x.map$Class.str, x.map$Order, sep=";")
+  sub.table$Family.str <- paste(x.map$Order.str, x.map$Family, sep=";")
+  sub.table$Genus.str <- paste(x.map$Family.str, x.map$Genus, sep=";")
+  sub.table$species.str <- paste(x.map$Genus.str, x.map$species, sep=";")
+  sub.table[sub.table$Class != "", ]$Class.str
+  sub.table[sub.table$Order != "", ]$Order.str
+  sub.table[sub.table$Family != "", ]$Family.str
+  sub.table[sub.table$Genus != "", ]$Genus.str
+  sub.table[sub.table$species != "", ]$species.str
+}
+
+tax.tables <- function(phyl.list, x.map, spp.list) {
+  #x.map <- fixed.map[fixed.map$Genus == "Ototyphlonemertes", ]
+  #spp.list <- host.spp
+  #phyl.list <- five.phyla
+  x.map$species.str <- paste(x.map$Phylum, x.map$Class, x.map$Order, x.map$Family, x.map$Genus, x.map$species, sep=";")
+  for (phyl in phyl.list) {
+    sub.table <- x.map[x.map$Phylum == phyl, ]
+    #write.table(sub.table, filename.phyl, sep="\t", row.names = F, quote=F)
+    sub.table <- x.map[x.map$species.str %in% spp.list & x.map$species != "", ]
+    #sub.table <- sub.table[sub.table$species.str %in% spp.list & sub.table$species != "", ]
+    filename.phyl <- paste("phyla/phyl", phyl, "_map.txt", sep="")
+    family.c <- unique(sub.table[sub.table$Family != "", ]$Family) #subsetting
+    genus.c <- unique(sub.table[sub.table$Genus != "", ]$Genus)
+    species.c <- unique(sub.table[sub.table$species != "", ]$species)
+    for (spp in unique(x.map$species.str))  {
+      taxa <- strsplit(spp, ";", fixed = TRUE)
+      filename.spp <- paste("/Users/krystallediaz/Box Sync/16S_all/phyla/species/phyl_", phyl, "_genus", taxa[[1]][5], "_species", taxa[[1]][6], ".txt", sep="")
+      write.table(sub.table[sub.table$species.str == spp, ], filename.spp, sep="\t", row.names = F, quote=F)
+    }
+  }
+}
+#phyl <- "Nemertea"
+tabulate.level <- function (x.map) {
+  sub.table <- x.map[fixed.map$Phylum %in% five.phyla, ]
+  sub.table$Class.str <- paste(sub.table$Phylum, sub.table$Class, sep=";")
+  sub.table$Order.str <- paste(sub.table$Class.str, sub.table$Order, sep=";")
+  sub.table$Family.str <- paste(sub.table$Order.str, sub.table$Family, sep=";")
+  sub.table$Genus.str <- paste(sub.table$Family.str, sub.table$Genus, sep=";")
+  sub.table$species.str <- paste(sub.table$Genus.str, sub.table$species, sep=";")
+  #sub.table[sub.table$Class != "", ]$Class.str
+  #sub.table[sub.table$Order != "", ]$Order.str
+  #sub.table[sub.table$Family != "", ]$Family.str
+  #sub.table[sub.table$Genus != "", ]$Genus.str
+  #sub.table[sub.table$species != "", ]$species.str
+  summed <- as.data.frame.table(table(sub.table$Genus.str))
+  colnames(summed) <- c("host.genus", "num.samples")
+  return(summed) 
+}
+
+#tax.tables(five.phyla, fixed.map)
+phyl.list <- five.phyla
+sum.table <- tabulate.level(fixed.map)
+write.table(tabulate.level(fixed.map), "phyla/phylabreakdown_species.txt", sep="\t", row.names = F, quote=F)
+host.spp <- as.character(sum.table[sum.table$Frequency > 2,]$host.species)
+tax.tables(five.phyla, fixed.map, host.spp)
+```
+
+```{r}
+spp.tables <- function(phyl.list, x.map, spp.list) {
+  #x.map <- fixed.map
+  x.map$species.str <- paste(x.map$Phylum, x.map$Class, x.map$Order, x.map$Family, x.map$Genus, x.map$species, sep=";")
+  x.map <- x.map[x.map$species.str %in% spp.list, ]
+  for (phyl in phyl.list) {
+    sub.table <- x.map[x.map$Phylum == phyl & x.map$species != "", ]
+    filename.phyl <- paste("/Users/krystallediaz/Box Sync/16S_all/phyla/phyl", phyl, "_map.txt", sep="")
+    write.table(sub.table, filename.phyl, sep="\t", row.names = F, quote=F)
+    for (spp in unique(sub.table$species.str))  {
+      taxa <- strsplit(spp, ";", fixed = TRUE)
+      filename.spp <- paste("/Users/krystallediaz/Box Sync/16S_all/phyla/species/phyl", phyl, 
+              "_genus", taxa[[1]][5], "_species", taxa[[1]][6], "_map.txt", sep="")
+      write.table(sub.table[sub.table$species.str == spp, ], filename.spp, sep="\t", row.names = F, quote=F)
+      #print(filename.spp)
+    }
+  }
+}
+
+spp.tables(five.phyla[1:4], fixed.map, host.spp)
+
+```
+

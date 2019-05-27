@@ -1,0 +1,717 @@
+---
+title: "Statistics"
+output: html_notebook
+---
+
+```{r}
+#save.image("/Users/nekop/Box Sync/scripts_and_coding_notebooks/diversity_metrics.RData")
+load("/Users/nekop/Box Sync/scripts_and_coding_notebooks/diversity_metrics.RData")
+```
+
+```{r}
+write.table(as.data.frame(table(core.samps$sciname, core.samps$OceanRegion))[as.data.frame(table(core.samps$sciname, core.samps$OceanRegion))$Freq != 0,], "/Users/nekop/Downloads/ocean.csv", quote = FALSE, row.names = FALSE, sep = ",")
+
+analyzed.samps$incore <- ""
+analyzed.samps[analyzed.samps$SampleID %in% core.samps$SampleID,]$incore <- "yes"
+
+write.table(analyzed.samps, "/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/paper_tables/analyzed_samples_metadata.tsv", quote = FALSE, row.names = FALSE, sep = "\t")
+```
+
+
+Fixing up data:
+```{r}
+core.samps <- analyzed.samps[match(colnames(core.an[2:312]), analyzed.samps$SampleID),]
+core.samps$sciname <- core.metadata[match(core.samps$SampleID, core.metadata$SampleID),]$sciname
+core.samps$OceanRegion <- paste(core.samps$Ocean, core.samps$Region, sep="_")
+core.an$taxonomy <- tax.tab[match(core.an$FeatureID, tax.tab$FeatureID),]$featspecies
+core.an$FeatureID <- as.character(core.an$FeatureID)
+rownames(core.samps) <- as.character(core.samps$SampleID) #required for RAM
+rownames(tax.tab) <- tax.tab$FeatureID #taxa table
+tax.clean <- tax.tab[rownames(tax.tab) %in% rownames(core.an),]
+tax.clean <- separate(tax.clean, featspecies, into = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "species"), sep=";")
+tax.clean[order(row.names(core.an)),]
+```
+
+Import bioms:
+```{r}
+mastacc.biom <- read_biom("/Users/nekop/Box Sync/Krystalle_project_thesis/16S_all/qiime2_outputs/feature_tables/bioms/master_80acc_featlevel_table.biom")
+mastcore.biom <- read_biom("/Users/nekop/Box Sync/Krystalle_project_thesis/16S_all/qiime2_outputs/feature_tables/bioms/master_80core_featlevel_table.biom")
+mastacc <- convert.biom(mastacc.biom)
+mastcore <- convert.biom(mastcore.biom)
+#
+convert.biom <- function(x.biom) {#turns bioms into regular data frames
+  x <- as.data.frame(as.matrix(biom_data(x.biom)))
+  x <- cbind(row.names(x), x)
+  len <- length(colnames(x.biom)) + 1 
+  colnames(x) <- c("FeatureID", colnames(x)[2:len])
+  rownames(x) <- NULL
+  rownames(x) <- x$FeatureID #needed for picante
+  return(x)
+}
+rm(mastacc.biom, mastcore.biom)
+core.samps$incore <- "" #mark hosts w/out core microbes
+core.samps[!(core.samps$SampleID %in% colnames(all.core)),]$incore <- FALSE #redo
+clean.biom <- function(x.biom, metadata, tax.tab) {#format OTU table for RAM & such
+  len <- length(colnames(x.biom)) + 1 
+  x.biom$taxonomy <- tax.tab[match(x.biom$FeatureID, tax.tab$FeatureID),]$featspecies
+  x.biom$FeatureID <- as.character(x.biom$FeatureID)
+  return(x.biom)
+}
+mastcore <- clean.biom(mastcore, core.samps, tax.tab)
+mastacc <- clean.biom(mastacc, core.samps, tax.tab)
+```
+
+There are samples inexpicably missing from the core and accessory tables, function to make correct OTU tables:
+```{r}
+split.biom <- function(otu, core.list, metadata) {
+  counter <- 1
+  core.tables <- list(NULL)
+  acc.tables <- list(NULL)
+  for (host in core.list) { #iterates through core list & retrieves samples therein
+    host.taxon <- strsplit(names(core.list)[counter], "_")[[1]]
+    host.samps <- (metadata[metadata$Phylum == host.taxon[1] && metadata$Genus == host.taxon[2] | metadata$species == host.taxon[3] | metadata$species == paste(host.taxon[2], host.taxon[3], sep="_"),]$SampleID)
+    core.tables[[counter]] <- otu[match(host$Feature.ID, otu$FeatureID),match(host.samps, colnames(otu))] #subset to cols & rows which match this host
+    acc.tables[[counter]] <- otu[(-match(host$Feature.ID, otu$FeatureID)),match(host.samps, colnames(otu))] #same columns, but want rows that DON'T match
+    acc.tables[[counter]] <- acc.tables[[counter]][rowSums(acc.tables[[counter]][, -1])>0, ] #gets rid of any column whose sum is zero
+    core.tables[[counter]] <- cbind(rownames(core.tables[[counter]]), core.tables[[counter]])
+    acc.tables[[counter]] <- cbind(rownames(acc.tables[[counter]]), acc.tables[[counter]])
+    colnames(core.tables[[counter]])[1] <- "FeatureID"
+    colnames(acc.tables[[counter]])[1] <- "FeatureID"
+    counter <- counter + 1
+  } #end of for loop
+  core.otu <- list.to.table(core.tables, "FeatureID", x.val=TRUE, y.val=TRUE) #core.otu <- single.table(core.tables) #acc.otu <- single.table(acc.tables)
+  rownames(core.otu) <- core.otu$FeatureID
+  acc.otu <- list.to.table(acc.tables, "FeatureID", x.val=TRUE, y.val=TRUE)
+  rownames(acc.otu) <- acc.otu$FeatureID #need for alpha diversity
+  acc.otu$taxonomy <- tax.tab[match(acc.otu$FeatureID, tax.tab$FeatureID),]$featspecies
+  core.otu$taxonomy <- tax.tab[match(core.otu$FeatureID, tax.tab$FeatureID),]$featspecies
+  otus <- list(core=core.otu, accessory=acc.otu)
+  return(otus) #these have NA values
+}
+
+list.to.table <- function(tab.list, by.cols, x.val, y.val) {
+  table <- tab.list[[1]] #initialize
+  len <- length(tab.list)
+  for (tab in tab.list[2:len]) {
+    table <- merge(table, tab, by= by.cols, all.x = x.val, all.y = y.val)
+  }
+  return(table) 
+}
+```
+
+Function is good:
+```{r}
+all.acc <- split.biom(core.an, list.data, analyzed.samps) #MUST be analyzed.samps because host.samps 
+all.core <- all.acc$core
+all.acc <- all.acc$accessory
+phylum.otu <- function(otu, metadata) {#diff OTU table for each phylum
+  list.otus <- list(NULL)
+  counter <- 1
+  for (phyl in unique(metadata$Phylum)) {
+    phyl.samps <- metadata[metadata$Phylum == phyl,]
+    phyl.otu <- otu[,match(phyl.samps$SampleID, colnames(otu))]
+    phyl.otu <- phyl.otu[rowSums(is.na(phyl.otu)) != ncol(phyl.otu),]
+    phyl.otu <- rm.na(phyl.otu) #replaces NA with 0
+    phyl.otu$taxonomy <- "placeholder" #putting back taxonomy column
+    list.otus[[counter]] <- phyl.otu
+    counter <- 1 + counter
+  }#list(core=phyl.core, accessory=phyl.acc, overall=phyl.overall)
+  return(list.otus)
+}
+#
+alpha.per.phylum <- function(otu, metadata, name, phylo.tree) {
+  list.alpha <- list(NULL)
+  counter <- 1
+  for (phyl in unique(metadata$Phylum)) {
+    phyl.samps <- metadata[metadata$Phylum == phyl,]
+    phyl.otu <- otu[,match(phyl.samps$SampleID, colnames(otu))]
+    phyl.otu <- phyl.otu[rowSums(is.na(phyl.otu)) != ncol(phyl.otu),] #remove rows if all NA
+    phyl.otu <- rm.na(phyl.otu) #replaces NA with 0
+    phyl.otu$taxonomy <- "placeholder" 
+    list.alpha[[counter]] <- alpha.metrics(phyl.otu, name, phyl.samps, phylo.tree)
+    counter <- 1 + counter
+  }
+  table <- list.to.table(list.alpha, colnames(list.alpha[[1]]), x.val=TRUE, y.val=TRUE)
+  return(table)
+}
+#
+alpha.metrics <- function(otu, name, metadata, phylo.tree) {#compute alpha metrics
+  library(RAM) #basic alpha diversity metrics
+  library(picante) #for Faith's PD)
+  len <- length(colnames(metadata)) + 1
+  alpha.table <- OTU.diversity(list(name=otu), metadata)[c(1, len:(len+9))] #only metrics
+  alpha.table$faithpd <- pd(transpose.OTU(otu), phylo.tree, include.root = TRUE)$PD
+  colnames(alpha.table)[12] <- paste0("faithpd_", name)
+  colnames(alpha.table) <- gsub("name", name, colnames(alpha.table), fixed = TRUE)
+  return(alpha.table)
+}
+```
+
+
+Alpha diversity:
+```{r}
+#phylogenetic tree for Faith's PD & beta diversity:
+rooted.tree<- read.tree("/Users/nekop/Box Sync/Krystalle_project_thesis/16S_all/qiime2_outputs/tree/rooted-tree.nwk") 
+matched.tree <- match.phylo.data(rooted.tree, core.an)$phy
+#pic.core.an <- match.phylo.comm(rooted.tree, pic.core.an)$comm #sort data same way
+stats.core.samps <- alpha.metrics(core.an[2:313], "overall", core.samps, matched.tree)
+stats.core.samps <- merge(core.samps, stats.core.samps, by="SampleID", all.x=TRUE)
+all.core.noNA <- reorder.otu.cols(all.core, core.samps[core.samps$incore != FALSE,], tax.tab) #alpha stats for core; accessory follows
+all.acc.noNA <- reorder.otu.cols(all.acc, core.samps[core.samps$incore != FALSE,], tax.tab)
+all.core.alpha <- alpha.metrics(all.core.noNA[2:263], "coreall", core.samps[core.samps$incore != FALSE,], matched.tree) #some samps all 0 count; some functions may be weird
+all.acc.alpha <- alpha.metrics(all.acc.noNA[2:263], "accessoryall", core.samps[core.samps$incore != FALSE,], matched.tree)
+#these were the same as accessoryall and coreall, so I removed them:
+#core.by.phyl <- alpha.per.phylum(all.core, core.samps[core.samps$incore != FALSE,], "corephyl", matched.tree) #acc.by.phyl <- alpha.per.phylum(all.acc, core.samps[core.samps$incore != FALSE,], "accessoryphyl", matched.tree)
+stats.core.samps <- merge(stats.core.samps, all.core.alpha, by="SampleID", all.x = TRUE)
+stats.core.samps <-merge(stats.core.samps, all.acc.alpha, by="SampleID", all.x = TRUE)
+rm(all.core.alpha, core.by.phyl, acc.by.phyl, alpha.by.phyl)#don't need now
+```
+
+
+Are the data normal?
+```{r}
+#save.histo(stats.core.samps, "overall", "", "Overall Microbiome Alpha Diversity Metrics")
+save.mult.boxplots(write.norm(stats.core.samps, "overall", ""), "Overall Microbiome Alpha Diversity Boxplots", "/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/boxplots/overall_boxplots.png", 2, 4)
+#save.histo(stats.core.samps[stats.core.samps$incore != FALSE,], "coreall", "", "Core Microbiome Alpha Diversity Metrics")
+save.mult.boxplots(write.norm(stats.core.samps[stats.core.samps$incore != FALSE,], "accessoryall", ""), "Accessory Microbiome Alpha Diversity Boxplots", "/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/boxplots/accessoryall_boxplots.png", 2, 4)
+#
+save.mult.boxplots(write.norm(stats.core.samps[stats.core.samps$incore != FALSE,], "coreall", ""), "Core Microbiome Alpha Diversity Boxplots", "/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/boxplots/coreall_boxplots.png", 2, 4)
+#
+#within phyla:
+for (phyl in unique(stats.core.samps$Phylum)) {
+  phyl.meta <- stats.core.samps[stats.core.samps$Phylum == phyl,]
+  title <- paste0(phyl, " Overall Microbiome Alpha Diversity")
+  #save.histo(phyl.meta, "coreall", paste0("phyl",phyl), paste0(title, " Histograms"))
+  filename <- paste0("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/boxplots/phyl", phyl, "_overall_boxplots.png")
+  save.mult.boxplots.sites(write.norm(phyl.meta, "overall", phyl), paste0(title, " Boxplots"), filename, 2, 4)
+}
+#to easily save alpha histograms:
+save.histo <- function(x, name, prefix, hist.title) { 
+  filename <- paste0("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/histograms/", prefix,"_", name, "_histograms.png")
+  colnames(x) <- gsub(name, "current", colnames(x), fixed = TRUE) #cleanup colnames
+  png(filename, width = 1200, height = 600)
+  par(mfrow = c(2, 4)) #wanna see all plots at once
+    hist(x$spec_current, main="Feature Number", xlab="", breaks=10)
+    hist(x$chao_current, main="Chao richness", xlab="", breaks=10)
+    hist(x$ACE_current, main="ACE richness", xlab="", breaks=10)
+    hist(x$shan_even_current, main="Shannon evenness", xlab="", breaks=10)
+    hist(1-x$sim_even_current, main="Inverse Simpson evenness", xlab="", breaks=10)
+    hist(x$shan_current, main="Shannon diversity", xlab="", breaks=10)
+    hist(x$invsim_current, main="Inverse Simpson diversity", xlab="", breaks=10)
+    hist(x$faithpd_current, main="Faith's PD", xlab="", breaks=10)
+    title(main=print(hist.title), outer=T, line=-1, font=2)
+  dev.off()
+}
+#Shapiro-Wilk normality test. http://emilkirkegaard.dk/en/?p=4452 if W is close to 1 & p is significant, then data are not normal:
+write.norm <- function(x, name, prefix) {#create boxplots and normality table
+  colnames(x) <- gsub(name, "current", colnames(x), fixed = TRUE) #cleanup colnames
+  alpha.stats <- c("Feature number", "Chao richness", "ACE richness","Shannon evenness", "Inverse Simpson evenness", "Shannon diversity", "Inverse Simpson diversity",  "Faith's PD")
+  alpha.stats <- as.data.frame(alpha.stats)
+  colnames(alpha.stats) <- "Alpha Diversity Metric"
+  alpha.stats$W <- ""
+  alpha.stats$p_value <- ""
+  test <- as.list(NULL)
+  test[[1]] <- shapiro.test(x$spec_current)
+  test[[2]] <- shapiro.test(x$chao_current)
+  test[[3]] <- shapiro.test(x$ACE_current)
+  test[[4]] <- shapiro.test(x$shan_current)
+  test[[5]] <- shapiro.test(x$invsim_current)
+  test[[6]] <- shapiro.test(x$shan_even_current)
+  test[[7]] <- shapiro.test((1-x$sim_even_current))
+  test[[8]] <- shapiro.test(x$faithpd_current)
+  counter <- 1
+  for (t in test) {
+    alpha.stats$W[counter] <- t$statistic
+    alpha.stats$p_value[counter] <- as.numeric(t$p.value)
+    counter <- counter+1
+  }
+  #filename <- paste0("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/paper_tables/R_stats_tables/", prefix, name, "_alphadiv_norm.csv")
+  #write.table(alpha.stats, filename, quote=FALSE,row.names = FALSE,sep=",")
+  x$invsim_even_current <- 1-x$sim_even_current
+  boxplots <- list(NULL)#initialize
+  for (metric in as.character(alpha.stats$`Alpha Diversity Metric`)) {
+    boxplots[[length(boxplots)+1]] <- save.boxplot2(x, metric)
+    #boxplots[[length(boxplots)+1]] <- save.boxplot.site(x, metric)
+  }
+  boxplots[[1]] <- NULL#remove initializer
+  return(boxplots)
+}
+```
+
+Boxplot making functions:
+```{r}
+alpha.colnames <- function(x, name) {
+  colnames(x) <- gsub(name, "current", colnames(x), fixed = TRUE) #cleanup colnames
+  y.data <- c("spec_current" = "Feature number", "shan_current" = "Shannon diversity",
+               "invsim_current" = "Inverse Simpson diversity", 
+               "shan_even_current" = "Shannon evenness", 
+               "sim_even_current" = "Simpson evenness", 
+              "chao_current" = "Chao richness", "ACE_current" = "ACE richness", 
+              "faithpd_current"="Faith's PD")#lookup for the metric in dataframe x
+  dat <- list(cols=colnames(x), lookup=y.data)
+  return(dat)
+}
+#
+save.boxplot2 <- function(x, metric) {#function to make boxplots
+  library("ggplot2")
+  y.data <- c("Feature number" = "spec_current", "Shannon diversity" = "shan_current",
+              "Inverse Simpson diversity" = "invsim_current", 
+              "Shannon evenness" = "shan_even_current", 
+              "Inverse Simpson evenness" = "invsim_even_current", 
+              "Chao richness" = "chao_current", "ACE richness" = "ACE_current", 
+              "Faith's PD" = "faithpd_current")#lookup for the metric in dataframe x
+  abbr <- c("Environmental DNA" = "Env", "Annelida" = "Ann", "Gastrotricha" = "Gas", "Mollusca" = "Moll","Nemertea" = "Nem")#so names fit
+  x$Phylum <- as.character(abbr[x$Phylum])
+  phyl.order <- c("Env", "Ann", "Gas", "Moll", "Nem")
+  x$Phylum <- ordered(x$Phylum, phyl.order) #
+  title <- paste0(metric) 
+  box <-  ggplot(x, aes_string(x="Phylum", y=y.data[[metric]])) + geom_boxplot2() + 
+    ggtitle(title) + labs(x="Host Phylum", y=metric) + 
+    theme(axis.text.x=element_text(size=9), plot.title = element_text(size=10), axis.title = element_text(size=10)) +
+      stat_summary(fun.data = n.labels, geom = "text", fun.y = median) 
+  return(box)
+}
+#
+save.mult.boxplots <- function(list.plots, plots.title, filename, rnum, cnum) {
+  library(ggplot2)
+  library(gridExtra)
+  library(grid)
+  ggsave(filename, arrangeGrob(grobs = list.plots, nrow=rnum, ncol=cnum, top=textGrob(plots.title, gp = gpar(fontsize=12, fontface = "bold"))), width = 11, height = 6)
+}
+#
+n.labels <- function(x){
+  return(data.frame(y = max(x)*1.05, label = paste0("n=",length(x)))) #multiplier for positioning
+}#modified from https://stackoverflow.com/questions/15660829/how-to-add-a-number-of-observations-per-group-and-use-group-mean-in-ggplot2-boxp
+```
+
+Sites
+```{r}
+save.boxplot.site <- function(x, metric) {#function to make boxplots
+  library("ggplot2")
+  y.data <- c("Feature number" = "spec_current", "Shannon diversity" = "shan_current",
+              "Inverse Simpson diversity" = "invsim_current", 
+              "Shannon evenness" = "shan_even_current", 
+              "Inverse Simpson evenness" = "invsim_even_current", 
+              "Chao richness" = "chao_current", "ACE richness" = "ACE_current", 
+              "Faith's PD" = "faithpd_current")#lookup for the metric in dataframe x
+  abbr <- c("Environmental DNA" = "Env", "Annelida" = "Ann", "Gastrotricha" = "Gas", "Mollusca" = "Moll","Nemertea" = "Nem")#so names fit
+  x$Phylum <- as.character(abbr[x$Phylum])
+  phyl.order <- c("Env", "Ann", "Gas", "Moll", "Nem")
+  x$Phylum <- ordered(x$Phylum, phyl.order) #
+  title <- paste0(metric) 
+  box <-  ggplot(x, aes_string(x="Ocean", y=y.data[[metric]])) + geom_boxplot2() + 
+    ggtitle(title) + labs(x="Host Ocean", y=metric) + 
+    theme(axis.text.x=element_text(size=9), plot.title = element_text(size=10), axis.title = element_text(size=10)) +
+      stat_summary(fun.data = n.labels, geom = "text", fun.y = median) 
+  return(box)
+}
+```
+
+
+Wrapper to make default-looking boxplots in ggplot2:
+```{r}
+#from https://stackoverflow.com/questions/53170465/how-to-make-a-base-r-style-boxplot-using-ggplot2, with some modifications
+geom_boxplot2 <- function(mapping = NULL, data = NULL, stat = "boxplot", position = "dodge2", 
+                          ..., outlier.colour = NULL, outlier.color = NULL, outlier.fill = NULL, 
+                          outlier.shape = 1, outlier.size = 3, outlier.stroke = 0.5, 
+                          outlier.alpha = NULL, notch = FALSE, notchwidth = 0.5, varwidth = FALSE, 
+                          na.rm = FALSE, show.legend = NA, inherit.aes = TRUE,
+                          linetype = "dashed"){
+  list(
+    geom_boxplot(mapping = mapping, data = data, stat = stat, position = position,
+                 outlier.colour = outlier.colour, outlier.color = outlier.color, 
+                 outlier.fill = outlier.fill, outlier.shape = outlier.shape, 
+                 outlier.size = outlier.size, outlier.stroke = outlier.stroke, 
+                 outlier.alpha = outlier.alpha, notch = notch, 
+                 notchwidth = notchwidth, varwidth = varwidth, na.rm = na.rm, 
+                 show.legend = show.legend, inherit.aes = inherit.aes, 
+                 linetype = linetype, ...),
+    stat_boxplot(aes(ymin = ..lower.., ymax = ..upper..), outlier.shape = NA),
+    stat_boxplot(geom = "errorbar", aes(ymin = ..ymax..)),
+    stat_boxplot(geom = "errorbar", aes(ymax = ..ymin..)),
+    theme_classic(), # remove panel background and gridlines
+    theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"), #hjust = 0.5 centers title
+          panel.border = element_rect(linetype = "solid", colour = "black", fill = "NA", size = 0.5))
+  )
+}
+```
+
+Are differences in alpha diversity significant?
+```{r}
+#Kruskal-Wallis rank sum test tells us if any are significantly different:
+#ExactSite is nested w/in OceanRegion & species w/in Phylum- nothing new they can add
+alpha.sig <- function(x, name, var, prefix = "") {
+  filename <- paste0("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/paper_tables/R_stats_tables/alpha_significance/", prefix, name, "_", var, "_alphadiv_krusk.csv")
+  colnames(x) <- alpha.colnames(x, name)$cols
+  colnames(x) <- gsub(var, "var", colnames(x), fixed=TRUE)
+  metrics <- c("spec_current", "shan_even_current", "sim_even_current", "shan_current", "invsim_current", "chao_current", "ACE_current", "faithpd_current")
+  alpha.stats <- as.data.frame(c("Feature number", "Shannon evenness", "Simpson evenness", "Shannon diversity", "Inverse Simpson diversity", "Chao richness", "ACE richness", "Faith's PD"))
+  colnames(alpha.stats) <- "Alpha Diversity Metric"
+  alpha.stats$H <- ""
+  alpha.stats$df <- ""
+  alpha.stats$p_value <- ""
+  test <- as.list(NULL) 
+  counter <- 1
+  for (metric in metrics) {
+    test[[counter]] <- kruskal.test(x[,metric]~as.factor(var), data=x)
+    counter <- counter+1
+  }
+  counter <- 1
+  for (krusk in test) {
+    alpha.stats$H[counter] <- krusk$statistic
+    alpha.stats$df[counter] <- krusk$parameter
+    alpha.stats$p_value[counter] <- as.numeric(krusk$p.value)
+    counter <- counter+1
+  }
+  write.table(alpha.stats, filename, quote=FALSE, row.names = FALSE, sep=",")
+}
+alpha.sig(stats.core.samps, "overall", "species") #also do for "coreall" and "accessoryall"
+alpha.sig(stats.core.samps, "overall", "Ocean") #as above, so below
+alpha.sig(stats.core.samps[stats.core.samps$incore != FALSE,], "coreall", "species")
+alpha.sig(stats.core.samps[stats.core.samps$incore != FALSE,], "coreall", "Ocean")
+alpha.sig(stats.core.samps[stats.core.samps$incore != FALSE,], "accessoryall", "species")
+alpha.sig(stats.core.samps[stats.core.samps$incore != FALSE,], "accessoryall", "Ocean") #checked; corephyl and accessoryphyl are same as coreall and accessoryall
+for (phyl in unique(stats.core.samps$Phylum)[3]) { #for Environmental, must do ExactSite
+  phyl.stats <- stats.core.samps[stats.core.samps$Phylum == phyl,]
+  alpha.sig(phyl.stats, "overall", "species", prefix = paste0("phyl", phyl, "_")) 
+  alpha.sig(phyl.stats, "overall", "Ocean", prefix = paste0("phyl", phyl, "_")) 
+  phyl.stats <- phyl.stats[phyl.stats$incore != FALSE,] #subset for acc & core
+  alpha.sig(phyl.stats, "accessoryall", "species", prefix = paste0("phyl", phyl, "_"))
+  alpha.sig(phyl.stats, "accessoryall", "Ocean", prefix = paste0("phyl", phyl, "_"))
+  alpha.sig(phyl.stats, "coreall", "species", prefix = paste0("phyl", phyl, "_"))
+  alpha.sig(phyl.stats, "coreall", "Ocean", prefix = paste0("phyl", phyl, "_"))
+}
+rm(phyl, phyl.stats)
+```
+
+
+```{r}
+pairwise.alpha.sig <- function(x, name, var, prefix = "") {
+  colnames(x) <- alpha.colnames(x, name)$cols
+  metric.title <- alpha.colnames(x, name)$lookup
+  colnames(x) <- gsub(var, "var", colnames(x), fixed=TRUE)
+  metrics <- c("spec_current", "shan_even_current", "sim_even_current", "shan_current", "invsim_current", "chao_current", "ACE_current", "faithpd_current")
+  library(reshape2)
+  test <- NULL
+  counter <- 1
+  for (metric in metrics) {
+    colnames(x) <- gsub(metric, "metric", colnames(x), fixed=TRUE)
+    t <- pairwise.wilcox.test(x$metric, x$var, p.adjust.method = "fdr")$p.value
+    x$metric <- NULL
+    t <- melt(t, na.rm = TRUE)
+    test[[counter]] <- t
+    colnames(test[[counter]]) <- c("Group1", "Group2", metric.title[[metric]])
+    counter <- counter+1
+  }
+  #return(test)
+  wilc <- as.data.frame(test[[1]])
+  for (t in test[2:length(test)]) {
+    wilc <- cbind(wilc, t[3])
+  }
+  filename <- paste0("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/paper_tables/R_stats_tables/alpha_significance/pairwise_significance/", prefix, name, "_", var, "_wilcoxon.csv")
+  write.table(wilc, filename, quote=FALSE, row.names = FALSE, sep=",")
+}
+pairwise.alpha.sig(stats.core.samps, "overall", "Phylum")
+pairwise.alpha.sig(stats.core.samps, "overall", "Ocean") #also did OceanRegion
+pairwise.alpha.sig(stats.core.samps[stats.core.samps$incore != FALSE,], "coreall", "Phylum")
+pairwise.alpha.sig(stats.core.samps[stats.core.samps$incore != FALSE,], "coreall", "OceanRegion")
+#
+for (phyl in unique(stats.core.samps$Phylum)[4]) { #for Environmental, must do ExactSite
+  phyl.stats <- stats.core.samps[stats.core.samps$Phylum == phyl,]
+  #pairwise.alpha.sig(phyl.stats, "overall", "species", prefix = paste0("phyl", phyl, "_")) 
+  #pairwise.alpha.sig(phyl.stats, "overall", "Ocean", prefix = paste0("phyl", phyl, "_"))
+  phyl.stats <- phyl.stats[phyl.stats$incore != FALSE,] #subset for acc & core
+  #pairwise.alpha.sig(phyl.stats, "accessoryall", "species", prefix = paste0("phyl", phyl, "_"))
+  #pairwise.alpha.sig(phyl.stats, "accessoryall", "Ocean", prefix = paste0("phyl", phyl, "_"))
+  pairwise.alpha.sig(phyl.stats, "coreall", "species", prefix = paste0("phyl", phyl, "_"))
+  #pairwise.alpha.sig(phyl.stats, "coreall", "Ocean", prefix = paste0("phyl", phyl, "_"))
+}
+phyl <- "Nemertea" #this wasn't working for the species level
+wilc <- melt(test[[1]], na.rm = TRUE)
+wilc$join <- paste0(wilc$Group1, wilc$Group2)
+wilc$variable <- NULL
+for (t in test[2:6]) {
+  t <- melt(t, na.rm = TRUE)
+  t$variable <- NULL
+  t$join <- paste0(t$Group1, t$Group2)
+  t$Group1 <- NULL
+  t$Group2 <- NULL
+  wilc <- merge(wilc, t, by="join", all.x = TRUE, all.y = TRUE)
+  #colnames(t) <- c("Group1", "Group2", "metric")
+}
+colnames(wilc) <- c("Group1", "Group2", "Feature Number", "shane", "sime", "shan", "invsim", "chao", "faith")
+```
+
+
+Beta diversity:
+```{r}
+core.samps$inbetaacc <- ""
+core.samps[!(core.samps$SampleID %in% colnames(all.core.noNA)),]$inbetaacc <- FALSE
+#
+beta.dists <- function(otu, phylo.tree) {
+  library(RAM) #for transpose.otu
+  library(picante)
+  library(vegan) #jaccard and bray-curtis
+  phylo.tree <- match.phylo.data(phylo.tree, otu)$phy #do before transpose
+  len <- length(colnames(otu)) - 1
+  otu <- otu[,colSums(otu[1:len])>0]
+  otu <- transpose.OTU(otu) #taxonomy column gone
+  otu <- otu[,colSums(otu)>0] #last removal of any 0s for jaccard & bray-curtis
+  jacc <- vegdist(otu, method="jaccard")
+  bray <- vegdist(otu, method="bray")
+  library(GUniFrac) #phylogenetic distance metrics
+  uni <- GUniFrac(otu, phylo.tree, alpha = c(1))$unifracs
+  unweighted_uni <- as.dist(uni[, , "d_UW"]) #unweighted UF
+  weighted_uni <- as.dist(uni[, , "d_1"]) #Weighted UniFrac
+  #varadjweighted_uni <- uni[, , "d_VAW"] #variance adjusted weighted UF
+  #unifracs[, , "d_0"] #GUniFrac w/ alpha 0  #unifracs[, , "d_0.5"] #GUniFrac w/ alpha 0.5
+  beta.matrices <- list(jaccard = jacc, braycurtis=bray, unweighted_uni = unweighted_uni, weighted_uni = weighted_uni)
+  return(beta.matrices)
+}
+#
+adonis.run <- function(betadiv.obj, metadata) {#takes output from beta.dists and runs adonis on them using species*Ocean as the formula, run within Phylum (strata)
+  library(vegan)
+  jacc <- adonis(betadiv.obj$jaccard~species*OceanRegion, strata=metadata$Phylum, data = metadata)
+  bray <- adonis(betadiv.obj$braycurtis~species*OceanRegion, strata=metadata$Phylum, data = metadata)
+  unweighted_uni <- adonis(betadiv.obj$unweighted_uni~species*OceanRegion, strata=metadata$Phylum, data = metadata)
+  weighted_uni <- adonis(betadiv.obj$weighted_uni~species*OceanRegion, strata=metadata$Phylum, data = metadata)
+  beta.stats <- list(jaccard = jacc, braycurtis=bray, unweighted_uni = unweighted_uni, weighted_uni = weighted_uni)
+  return(beta.stats) #list, one for each beta diversity metric
+}
+#
+save.adonis <- function(adonis, name) {#saving tables from adonis 
+ for (ad in names(adonis)) {
+  filename <- paste0("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/paper_tables/R_stats_tables/beta_significance/", name, "_", ad, "_adonis.csv")
+  write.table(as.data.frame(adonis[[ad]]$aov.tab), filename, quote=FALSE, row.names = TRUE, col.names= NA, sep=",")
+  }
+}
+#
+overall.betadiv <- beta.dists(core.an[2:313], matched.tree) #done
+accessoryall.betadiv <- beta.dists(all.acc.noNA[2:263], matched.tree)
+coreall.betadiv <- beta.dists(all.core.noNA[2:263], matched.tree) 
+#Stats on the above:
+overall.adonis <- adonis.run(overall.betadiv, core.samps)
+acc.adonis <- adonis.run(accessoryall.betadiv, core.samps[core.samps$inbetaacc != FALSE,])
+core.adonis <- adonis.run(coreall.betadiv, coreacc.meta)
+#OceanRegion
+save.adonis(adonis.run(overall.betadiv, core.samps), "OceanRegion_overall")
+save.adonis(adonis.run(accessoryall.betadiv, core.samps[core.samps$inbetaacc != FALSE,]), "OceanRegion_accessory")
+save.adonis(adonis.run(coreall.betadiv, coreacc.meta), "OceanRegion_core")
+#One per phylum:
+phyl.overall.otus <- phylum.otu(core.an, core.samps)
+phyl.acc.otus <- phylum.otu(all.acc.noNA, core.samps[core.samps$inbetaacc != FALSE,])
+phyl.core.otus <- phylum.otu(all.core.noNA, coreacc.meta)
+#names(phyl.core.otus) <- c("Environmental", "Annelida", "Gastrotricha", "Mollusca","Nemertea")
+run.otus <- function(phyl.otus, metadata, name) {
+  #for (otu in phyl.otus) {
+    #otu <- phyl.overall.otus["Annelida"]
+    len <- length(colnames(otu[[1]])) - 1
+    betadiv <- beta.dists(otu[[1]], matched.tree)
+    adonis <- adonis.run(betadiv, metadata[metadata$Phylum ==names(otu),])
+    save.adonis(adonis, paste0(names(otu), "_", name, "_ExactSite"))
+}
+#run.otus(phyl.acc.otus[2:5], core.samps[core.samps$inbetaacc != FALSE,], "accessory")
+metadata <- core.samps
+run.otus(phyl.overall.otus, core.samps[core.samps$Phylum == "Environmental DNA", ], "overall")
+```
+
+Phyloseq objects for easy visualizations in phyloseq's ggplot wrappers:
+```{r}
+make.phyloseq.obj <- function(otu, taxa, metadata) {#phyloseq object
+  library(phyloseq)
+  otu.clean <- otu_table(as.matrix(otu), taxa_are_rows=TRUE)
+  tax.clean <- tax_table(as.matrix(taxa))
+  meta.clean <- sample_data(metadata)
+  phylo.obj <- phyloseq(otu.clean, tax.clean, meta.clean)#, tree)
+  return(phylo.obj)
+}
+#
+pcoa.maker <- function(phylo.obj, betadiv.obj, method.string = "PCoA") {
+  library("phyloseq")
+  jacc <- ordinate(phylo.obj, distance = betadiv.obj$jaccard, method = method.string)
+  bray <- ordinate(phylo.obj, distance = betadiv.obj$braycurtis, method = method.string)
+  unweighted_uni <- ordinate(phylo.obj, distance = betadiv.obj$unweighted_uni, method = method.string)
+  weighted_uni  <- ordinate(phylo.obj, distance = betadiv.obj$weighted_uni, method = method.string)
+  ords <- list(jacc.ord = jacc, braycurtis.ord=bray, unweighted_uni.ord = unweighted_uni, weighted_uni.ord = weighted_uni)
+  return(ords)
+}
+#
+make.beta.plotobj <- function(phyloseq.obj, ord.obj, name) {#make ggplot-phyloseq object
+  library(phyloseq)
+  jacc <- plot_ordination(phyloseq.obj, ord.obj$jacc.ord, title=paste0("Jaccard ", name))
+  bray <- plot_ordination(phyloseq.obj, ord.obj$braycurtis.ord, title=paste0("Bray-Curtis ", name))
+  unweighted_uni <- plot_ordination(phyloseq.obj, ord.obj$unweighted_uni.ord, title=paste0("Unweighted UniFrac ", name))
+  weighted_uni <- plot_ordination(phyloseq.obj, ord.obj$weighted_uni.ord, title=paste0("Weighted UniFrac ", name))
+  plots <- list(jaccard = jacc, braycurtis=bray, unweighted_uni = unweighted_uni, weighted_uni = weighted_uni)
+  return(plots)
+}
+#create phyloseq objects using otu table, taxa table, and metadata:
+overall.phylo <- make.phyloseq.obj(core.an[2:312], tax.tab, core.samps)
+accessoryall.phylo <- make.phyloseq.obj(all.acc.noNA[2:262], tax.tab[tax.tab$FeatureID %in% rownames(all.acc.noNA),], core.samps)
+coreall.phylo <- make.phyloseq.obj(all.core.noNA[2:262], tax.tab[tax.tab$FeatureID %in% rownames(all.core.noNA),], coreacc.meta)
+#ordinate into PCoA:
+overall.pcoas <- pcoa.maker(overall.phylo, overall.betadiv, method.string = "NMDS")
+accessoryall.pcoas <- pcoa.maker(accessoryall.phylo, accessoryall.betadiv, method.string = "PCoA")
+coreall.pcoas <- pcoa.maker(coreall.phylo, coreall.betadiv, method.string = "NMDS")
+# ordinate into NMDS:
+overall.nmds <- pcoa.maker(overall.phylo, overall.betadiv, method.string = "NMDS")
+accessoryall.nmds <- pcoa.maker(accessoryall.phylo, accessoryall.betadiv, method.string = "NMDS")
+coreall.nmds <- pcoa.maker(coreall.phylo, coreall.betadiv, method.string = "NMDS")
+#Turn ordinations into plot objects:
+plots.overall.pcoas<- make.beta.plotobj(overall.phylo, overall.pcoas, "PCoA")
+plots.accessoryall.pcoas <- make.beta.plotobj(accessoryall.phylo, accessoryall.pcoas, "PCoA")
+plots.coreall.pcoas <- make.beta.plotobj(coreall.phylo, coreall.pcoas, "PCoA")
+plots.overall.nmds<- make.beta.plotobj(overall.phylo, overall.nmds, "NMDS")
+plots.accessoryall.nmds <- make.beta.plotobj(accessoryall.phylo, accessoryall.nmds, "NMDS")
+plots.coreall.nmds <- make.beta.plotobj(coreall.phylo, coreall.nmds, "NMDS")
+```
+
+It's plotting time!
+```{r}
+stressplot(overall.nmds$weighted_uni.ord) #checking fit- jaccard and bray have troubles but unifracs are good
+#reordering the labels:
+spp.order <- sort(unique(paste(core.samps$Phylum, core.samps$Class, core.samps$Order, core.samps$Family, core.samps$sciname, sep = ";")))
+spp.order <- c(spp.order[10], spp.order[1:9], spp.order[11:39])
+list <- as.character(NULL)
+counter <- 1
+for (sci in strsplit(spp.order, ";", fixed=TRUE)) {
+  list[counter] <- sci[[5]]
+  counter <- 1 + counter
+}
+list <- ordered(list)
+#
+make.ggplot <- function(plots, ord.method, component, p.title, filetype) {
+  phyl.order <- c("Environmental DNA", "Annelida", "Gastrotricha", "Mollusca", "Nemertea")
+  filename <- paste0("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/beta_diversity/", ord.method, "_", component, filetype)
+  library(ggplot2)
+  library(gridExtra)
+  library(grid)
+  library(cowplot)
+  library(RColorBrewer)
+  #for loop won't work for some reason, so doing one by one:
+  plots$jaccard <- plots$jaccard + aes(color=ordered(sciname, list), shape = Ocean) + scale_color_manual(breaks = list, name="Host species", values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) + theme(plot.title = element_text(hjust = 0.5, size = 10), legend.position = "none", axis.text = element_text(size=8), axis.title = element_text(size = 10), strip.text.x = element_text(size=10)) + background_grid(major = "xy", minor = "xy", colour.major="grey85", colour.minor="grey85") + facet_wrap(~ordered(Phylum, phyl.order)) + geom_text(aes(label=sciname), size = 2, hjust=0, vjust=1)
+   plots$braycurtis<- plots$braycurtis + aes(color=ordered(sciname, list), shape = Ocean) + scale_color_manual(breaks = list, name="Host species", values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) + theme(plot.title = element_text(hjust = 0.5, size = 10), legend.position = "none", axis.text = element_text(size=8), axis.title = element_text(size = 10), strip.text.x = element_text(size=10)) + background_grid(major = "xy", minor = "xy", colour.major="grey85", colour.minor="grey85") + facet_wrap(~ordered(Phylum, phyl.order))+ geom_text(aes(label=sciname), size = 2, hjust=0, vjust=1)
+   plots$unweighted_uni <- plots$unweighted_uni + aes(color=ordered(sciname, list), shape = Ocean) + scale_color_manual(breaks = list, name="Host species", values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) + theme(plot.title = element_text(hjust = 0.5, size = 10), legend.position = "none", axis.text = element_text(size=8), axis.title = element_text(size = 10), strip.text.x = element_text(size=10)) + background_grid(major = "xy", minor = "xy", colour.major="grey85", colour.minor="grey85") + facet_wrap(~ordered(Phylum, phyl.order))+ geom_text(aes(label=sciname), size = 2, hjust=0, vjust=1)
+  plots$weighted_uni <- plots$weighted_uni + aes(color=ordered(sciname, list), shape = Ocean) + scale_color_manual(breaks = list, name="Host species", values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) + theme(plot.title = element_text(hjust = 0.5, size = 10), legend.position = "none", axis.text = element_text(size=8), axis.title = element_text(size = 10), strip.text.x = element_text(size=10)) + background_grid(major = "xy", minor = "xy", colour.major="grey85", colour.minor="grey85") + facet_wrap(~ordered(Phylum, phyl.order)) + geom_text(aes(label=sciname), size = 2, hjust=0, vjust=1)
+  plots$legend <- get_legend(plots$weighted_uni + theme(legend.position = c(0.01, 0.5), legend.text = element_text(size=7), legend.title = element_text(size = 8), legend.box = "horizontal", legend.spacing.x = unit(0.01, "cm"), legend.key.height=unit(0.1, "cm")) + guides(color = guide_legend(order=1, direction="horizontal", title.position = "top"), shape = guide_legend(order=2, direction= "vertical", title.position = "top")))
+  plots$weighted_uni <- plots$weighted_uni + theme(legend.position = "none") #return(plots)
+  ggsave(filename, plot_grid(arrangeGrob(grobs=plots[1:4], top=textGrob(p.title, gp = gpar(fontsize=11, fontface = "bold"))), plots$legend, rel_heights = c(1, .2), nrow = 2), width = 12, height = 9) 
+}
+#
+indiv.beta.plot <- function(plots, ord.method, component, title, filetype) {
+  phyl.order <- c("Environmental DNA", "Annelida", "Gastrotricha", "Mollusca", "Nemertea")
+  library(ggplot2)
+  library(cowplot)
+  library(RColorBrewer)
+  for (plot in plots) {
+    filename <- paste0("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/beta_diversity/single_plots/", ord.method, "_", component, "_", strsplit(plot$labels$title, " ")[[1]][1], filetype)
+     tiff(filename, width=2000, height=1500)
+     par(mfrow = c (1, 1))
+    print(
+      plot + aes(color=ordered(sciname, list), shape = Phylum) + geom_point(size=5) + scale_color_manual(breaks = list, name="Host species", values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) + theme(plot.title = element_text(hjust = 0.5, size = 28), axis.text = element_text(size=23), axis.title = element_text(size = 25), strip.text.x = element_text(size=20)) + 
+        ggtitle(paste0(plot$labels$title, " ", title, " Microbiome")) + 
+        background_grid(major = "xy", minor = "xy", colour.major="grey85", colour.minor="grey85") +  
+        theme(legend.position = "bottom", legend.text = element_text(size=24), legend.title = element_text(size = 25), legend.box = "horizontal", legend.spacing.x = unit(0.03, "cm")) + guides(color = guide_legend(order=1, direction="horizontal", title.position = "top"), shape = guide_legend(order=2, direction= "vertical", title.position = "top"))
+    )
+    dev.off()
+  }#end of for loop
+}#end of function
+#test <- make.ggplot(plots.overall.pcoas, "coreall", "pcoa", "Core Microbiome PCoA", "legend_phylum.tiff") 
+make.ggplot(plots.overall.pcoas, "pcoa", "overall", "Overall Microbiome PCoAs", "_phylum.tiff")
+make.ggplot(plots.accessoryall.pcoas, "pcoa", "accesoryall", "Accessory Microbiome PCoAs", "_phylum.tiff")
+make.ggplot(plots.coreall.pcoas, "pcoa", "coreall", "Core Microbiome PCoAs", "_phylum.tiff")
+make.ggplot(plots.overall.nmds, "nmds", "overall", "Overall Microbiome NMDS", "_phylum.tiff")
+make.ggplot(plots.accessoryall.nmds, "nmds", "accesoryall", "Accessory Microbiome NMDS", "_phylum.tiff")
+make.ggplot(plots.coreall.nmds, "nmds", "coreall", "Core Microbiome NMDS", "_phylum.tiff")
+#
+indiv.beta.plot(plots.overall.pcoas, "pcoa", "overall", "Overall", ".tiff")
+indiv.beta.plot(plots.accessoryall.pcoas, "pcoa", "accessoryall", "Accessory", ".tiff")
+indiv.beta.plot(plots.coreall.pcoas, "pcoa", "coreall", "Core", ".tiff")
+indiv.beta.plot(plots.overall.nmds, "nmds", "overall", "Overall", ".tiff")
+indiv.beta.plot(plots.accessoryall.nmds, "nmds", "accessoryall", "Accessory", ".tiff")
+indiv.beta.plot(plots.coreall.nmds, "nmds", "coreall", "Core", ".tiff")
+```
+
+```{r}
+make.geomplot <- function(plots, ord.method, component, p.title, filetype) {
+  phyl.order <- c("Environmental DNA", "Annelida", "Gastrotricha", "Mollusca", "Nemertea")
+  filename <- paste0("/Users/nekop/Box Sync/Krystalle_project_thesis/Writeup/figures/beta_diversity/", ord.method, "_", component, filetype)
+  library(ggplot2)
+  library(gridExtra)
+  library(grid)
+  library(cowplot)
+  library(RColorBrewer)
+  #for loop won't work for some reason, so doing one by one:
+  plots$jaccard <- plots$jaccard + aes(color=ordered(sciname, list), shape = Ocean) + 
+  scale_color_manual(values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) + 
+   geom_polygon((aes(fill=ordered(sciname, list)))) + scale_fill_manual(breaks = list, name="Host species", values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) +
+  theme(plot.title = element_text(hjust = 0.5, size = 10), legend.position = "none", axis.text = element_text(size=8), axis.title = element_text(size = 10), strip.text.x = element_text(size=10)) + background_grid(major = "xy", minor = "xy", colour.major="grey85", colour.minor="grey85") + facet_wrap(~ordered(Phylum, phyl.order)) + geom_text(aes(label=sciname), size = 1, hjust=0, vjust=1)
+   plots$braycurtis<- plots$braycurtis + aes(color=ordered(sciname, list), shape = Ocean) + 
+  scale_color_manual(values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) + 
+   geom_polygon((aes(fill=ordered(sciname, list)))) + scale_fill_manual(breaks = list, name="Host species", values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) +
+  theme(plot.title = element_text(hjust = 0.5, size = 10), legend.position = "none", axis.text = element_text(size=8), axis.title = element_text(size = 10), strip.text.x = element_text(size=10)) + background_grid(major = "xy", minor = "xy", colour.major="grey85", colour.minor="grey85") + facet_wrap(~ordered(Phylum, phyl.order))+ geom_text(aes(label=sciname), size = 1, hjust=0, vjust=1)
+   plots$unweighted_uni <- plots$unweighted_uni + aes(color=ordered(sciname, list), shape = Ocean) +
+  scale_color_manual(values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) + 
+   geom_polygon((aes(fill=ordered(sciname, list)))) + scale_fill_manual(breaks = list, name="Host species", values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) +
+  theme(plot.title = element_text(hjust = 0.5, size = 10), legend.position = "none", axis.text = element_text(size=8), axis.title = element_text(size = 10), strip.text.x = element_text(size=10)) + background_grid(major = "xy", minor = "xy", colour.major="grey85", colour.minor="grey85") + facet_wrap(~ordered(Phylum, phyl.order))+ geom_text(aes(label=sciname), size = 1, hjust=0, vjust=1)
+  plots$weighted_uni <- plots$weighted_uni + aes(color=ordered(sciname, list), shape = Ocean) + 
+  scale_color_manual(values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) + 
+   geom_polygon((aes(fill=ordered(sciname, list)))) + scale_fill_manual(breaks = list, name="Host species", values = colorRampPalette(brewer.pal(9, "Set1"))(length(unique(list)))) +
+  theme(plot.title = element_text(hjust = 0.5, size = 10), legend.position = "none", axis.text = element_text(size=8), axis.title = element_text(size = 10), strip.text.x = element_text(size=10)) + background_grid(major = "xy", minor = "xy", colour.major="grey85", colour.minor="grey85") + facet_wrap(~ordered(Phylum, phyl.order))+ geom_text(aes(label=sciname), size = 1, hjust=0, vjust=1)
+  plots$legend <- get_legend(plots$weighted_uni + theme(legend.position = c(0.01, 0.5), legend.text = element_text(size=7), legend.title = element_text(size = 8), legend.box = "horizontal", legend.spacing.x = unit(0.01, "cm"), legend.key.height=unit(0.1, "cm")) + guides(fill = guide_legend(order=1, direction="horizontal", title.position = "top"), shape = guide_legend(order=2, direction= "vertical", title.position = "top"), color=FALSE))
+  plots$weighted_uni <- plots$weighted_uni + theme(legend.position = "none") #return(plots)
+  ggsave(filename, plot_grid(arrangeGrob(grobs=plots[1:4], top=textGrob(p.title, gp = gpar(fontsize=11, fontface = "bold"))), plots$legend, rel_heights = c(1, .2), nrow = 2), width = 12, height = 9) 
+}
+make.ggplot(plots.overall.pcoas, "pcoa", "overall", "Overall Microbiome PCoAs", "_phylum_lab.tiff")
+make.geomplot(plots.accessoryall.pcoas, "pcoa", "accesoryall", "Accessory Microbiome PCoAs", "_phylum_lab.tiff")
+make.ggplot(plots.coreall.pcoas, "pcoa", "coreall", "Core Microbiome PCoAs", "_phylum_lab.tiff")
+make.ggplot(plots.overall.nmds, "nmds", "overall", "Overall Microbiome NMDS", "_phylum_lab.tiff")
+make.ggplot(plots.accessoryall.nmds, "nmds", "accesoryall", "Accessory Microbiome NMDS", "_phylum_lab.tiff")
+make.ggplot(plots.coreall.nmds, "nmds", "coreall", "Core Microbiome NMDS", "_phylum_lab.tiff")
+```
+
+
+
+
+Citations:
+```{r}
+citation("ggplot2") #plots
+citation("picante") #diversity metrics, unweighted UniFrac
+citation("RAM") #Faith's PD
+citation("vegan")
+
+rm.na <- function(x) {#replaces NA with 0
+  x[is.na(x)] <- 0
+  return(x)
+}
+
+reorder.otu.cols <- function(otu, metadata, taxa.tab) {
+  len <- length(colnames(otu))-1
+  otu <- rm.na(otu) #replacing NA with 0- some samps will have 0 OTUs
+  library(RAM) #for transpose.OTU()
+  otu$taxonomy <- ""
+  otu2 <- transpose.OTU(otu[1:len+1])
+  otu2$SampleID <- rownames(otu2)
+  otu2 <- otu2[match(metadata$SampleID, otu2$SampleID),]
+  otu2$taxonomy <- "" #required for transpose.OTU
+  otu2$SampleID <- NULL
+  otu2 <- transpose.OTU(otu2)
+  FeatureID <- rownames(otu2)
+  otu2 <- cbind(FeatureID, otu2)
+  otu2$FeatureID <- as.character(otu2$FeatureID)
+  otu2$taxonomy <- tax.tab[match(otu2$FeatureID, tax.tab$FeatureID),]$featTaxon
+  return(otu2)
+}
+#
+single.table <- function(tab.list) {#function to make a single table
+    table <- tab.list[[1]]
+    table$FeatureID <- as.character(table$FeatureID)
+    len <- length(tab.list)
+    for (tab in tab.list[2:len]) {
+      tab$FeatureID <- as.character(tab$FeatureID)
+      table <- merge(table, tab, by= "FeatureID", all.x = TRUE, all.y = TRUE)
+    }
+    return(table)
+  }
+```
+

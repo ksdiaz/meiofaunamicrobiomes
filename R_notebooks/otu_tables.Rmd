@@ -1,0 +1,117 @@
+---
+title: "OTU Table R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+This is where I am saving the data to:
+```{r}
+load("/Users/krystallediaz/Box Sync/16S_all/21Jan2018_concatenated/otu_table_barplots.RData")
+#save.image("/Users/krystallediaz/Box Sync/16S_all/21Jan2018_concatenated/otu_table_barplots.RData")
+```
+
+Packages as needed:
+```{r}
+library(Biostrings)
+library(ggplot2)
+#library(reshape2) #called in the user function make.tidy
+
+```
+
+
+Reading in data:
+```{r}
+#This is the full OTU table (feature table from QIIME2, removed the # sign from the second line so that R can head it in)
+tab.all <- read.table("/Users/krystallediaz/Box Sync/16S_all/21Jan2018_concatenated/22Jan2018_table_trimmed_500seqsmin.txt", header=F, sep='\t',stringsAsFactors=F,quote="")
+colnames(tab.all) <- tab.all[1, ] #setting the first row as column names
+tab.all <- tab.all[-1, ] #deleting the first row now
+colnames(tab.all)[1] <- "OTUID" #space throws things off
+
+#Taxa table:
+tax.tab <- read.table("/Users/krystallediaz/Box Sync/16S_all/21Jan2018_concatenated/taxonomy.tsv", header=T, sep='\t',stringsAsFactors=F,quote="")
+tax.tab <- tax.as.qiime.strings(tax.tab)
+tab.all$taxon <- merge(tab.all, tax.tab, by.x="OTUID", by.y = "FeatureID", all.x = T, sort = F)$Taxon #joining in the taxonomy data
+
+#metadata file:
+map.all <- read.table("/Users/krystallediaz/Box Sync/16S_all/fulllmap_analyzed_only_15Feb2018.tsv",header=T, sep='\t',stringsAsFactors=F, quote="")
+```
+
+Subsetting tables as necessary so that this doesn't take eons to process, only millenia:
+```{r}
+all.tidy <- make.tidy(tab.all, map.all, tax.tab)
+
+env.tidy <- all.tidy[all.tidy$Phylum == "Environmental DNA",]
+ann.tidy <- all.tidy[all.tidy$Phylum == "Annelida",]
+gas.tidy <- all.tidy[all.tidy$Phylum == "Gastrotricha",]
+moll.tidy <- all.tidy[all.tidy$Phylum == "Mollusca",]
+nem.tidy <- all.tidy[all.tidy$Phylum == "Nemertea",]
+
+table(map.all[map.all$Phylum == "Annelida", ]$species, map.all[map.all$Phylum == "Annelida", ]$Ocean)
+table(map.all[map.all$Phylum == "Gastrotricha", ]$species, map.all[map.all$Phylum == "Gastrotricha", ]$Ocean)
+table(map.all[map.all$Phylum == "Mollusca", ]$species, map.all[map.all$Phylum == "Mollusca", ]$Ocean)
+table(map.all[map.all$Phylum == "Nemertea", ]$species, map.all[map.all$Phylum == "Nemertea", ]$Ocean)
+```
+
+Annotate core and accessory:
+```{r}
+env.core <- read.table("/Users/krystallediaz/Box Sync/16S_all/21Jan2018_concatenated/environmental/featlevel/environmental_80corelist.txt", header=T, sep='\t',stringsAsFactors=F, quote="")
+env.tidy$Component <- ifelse(env.tidy$OTU.ID %in% env.core$Feature.ID,"core", "accessory")
+```
+
+
+```{r}
+#For GRC poster April 2018
+env.table("/Users/krystallediaz/Box Sync/16S_all/21Jan2018_concatenated/feat_barplots/env_barplot.tiff", env.tidy)
+ann.table <- all.tidy[all.tidy$Phylum == "Annelida",]
+
+env.table <- function (name.str, data.melted) {
+  tiff(name.str, width=5, height=3, units="in", compression = "none", res=300)
+  par(mfrow = c (1, 1))
+  print(
+    ggplot(data=data.melted, aes(x=interaction(Sample, ExactSite), y=value)) + geom_bar(position="fill", stat="identity", colour = "grey", size=0.075) + aes(fill=Taxon, group = value*-1) +
+    theme(legend.position="bottom", text=element_text(family="Helvetica")) + labs(x="Sample Site", y="Relative Abundance") +
+      theme(text=element_text(family="Helvetica"), axis.text.x=element_text(angle=45, hjust=1, size=5), 
+            axis.text.y = element_text(size=5), axis.title=element_text(size=5)) +
+      scale_fill_hue(l=56) + facet_wrap(~Component, nrow=1, scales="free_x") + 
+    scale_x_discrete(labels=c("1852 Pass", "Dodridge Park", "Fish Pass", "Mustang Island Park", "Mustang Island Park", "Mustang Island Park", "Palmetto Park", "Palmetto Park", "Palmetto Park", "Spid Oso Bridge")) #+ theme(legend.position="none")
+  )
+  dev.off()
+}
+
+phyl.table <- function (name.str, data.melted) {
+  tiff(name.str, width=5, height=3, units="in", compression = "none", res=300)
+  par(mfrow = c (1, 1))
+  print(
+    ggplot(data=data.melted, aes(x=interaction(Sample, Class, Order, Family, Genus, species), y=value)) + geom_bar(position="fill", stat="identity", colour = "grey", size=0.075) + aes(fill=Taxon, group = value*-1) +
+    theme(legend.position="bottom", text=element_text(family="Helvetica")) + labs(x="Sample Site", y="Relative Abundance") +
+      theme(text=element_text(family="Helvetica"), axis.text.x=element_text(angle=45, hjust=1, size=5), 
+            axis.text.y = element_text(size=5), axis.title=element_text(size=5)) +
+      scale_fill_hue(l=56) + facet_wrap(~Component, nrow=1, scales="free_x") + 
+    scale_x_discrete(labels=c("1852 Pass", "Dodridge Park", "Fish Pass", "Mustang Island Park", "Mustang Island Park", "Mustang Island Park", "Palmetto Park", "Palmetto Park", "Palmetto Park", "Spid Oso Bridge")) #+ theme(legend.position="none")
+  )
+  dev.off()
+}
+```
+
+
+```{r}
+env.table <- function (name.str, data.melted) {
+  tiff(name.str, width=3, height=3, units="in", compression = "none", res=300)
+  par(mfrow = c (1, 1))
+  print(
+    ggplot(data= data.melted, aes(x=interaction(index, ExactSite), y=value)) + geom_bar(position="fill", stat="identity", colour = "grey", size=0.075) + aes(fill=variable, group = value*-1) +
+    theme(legend.position="none", text=element_text(family="Garamond")) + labs(x="Sample Site", y="Relative Abundance") +
+      theme(axis.text.x=element_text(angle=45, hjust=1, size=5), 
+            axis.text.y = element_text(size=5), axis.title=element_text(size=5)) +
+      scale_fill_hue(l=56) +
+      #+ facet_wrap(~Component, nrow=1, scales="free_x") + 
+    scale_x_discrete(labels=c("1852 Pass", "Dodridge Park", "Fish Pass", "Mustang Island Park", "Mustang Island Park", "Mustang Island Park", "Palmetto Park", "Palmetto Park", "Palmetto Park", "Spid Oso Bridge")) #+ theme(legend.position="none")
+  )
+  dev.off()
+}
+```
+
+```{r}
+```
+
