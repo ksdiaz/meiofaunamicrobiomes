@@ -1,0 +1,2 @@
+Feature ID	Taxon	Confidence
+5bdd6deeea58d1dcab4c96ccd1fe8fae	k__Bacteria;p__Proteobacteria;c__Betaproteobacteria;o__Methylophilales;f__Methylophilaceae;g__Methylotenera;s__mobilis	0.858015952989525

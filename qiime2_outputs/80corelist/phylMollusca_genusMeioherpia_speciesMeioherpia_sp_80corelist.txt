@@ -1,0 +1,3 @@
+Feature ID	Taxon	Confidence
+0dde9aaf4937a285943966b60eaeefb8	k__Bacteria;p__Actinobacteria;c__Actinobacteria;o__Actinomycetales;f__Pseudonocardiaceae;g__Actinomycetospora;s__	0.9989808884035127
+ef66b7fc23d912c1a2e408db42611449	k__Bacteria;p__Bacteroidetes;c__Flavobacteriia;o__Flavobacteriales;f__[Weeksellaceae];g__Cloacibacterium;s__	0.9999433120120249

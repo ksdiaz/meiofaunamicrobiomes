@@ -1,0 +1,3 @@
+Feature ID	Taxon	Confidence
+d764afbdec792b01e0731aed85983ec1	k__Bacteria;p__Actinobacteria;c__Actinobacteria;o__Actinomycetales;f__Propionibacteriaceae;g__Propionibacterium;s__	0.917862630367019
+ef66b7fc23d912c1a2e408db42611449	k__Bacteria;p__Bacteroidetes;c__Flavobacteriia;o__Flavobacteriales;f__[Weeksellaceae];g__Cloacibacterium;s__	0.9999433120120249

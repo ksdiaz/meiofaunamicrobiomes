@@ -1,0 +1,4 @@
+Feature ID	Taxon	Confidence
+63a6f46fa25c18b74c2a4387098da02b	k__Bacteria;p__Bacteroidetes	0.8533167419167442
+77b2ecedd41b24ce403d61b3ad498a30	k__Bacteria	0.9969907191403985
+9984b4bc5254e621f4eae42664182480	k__Bacteria;p__Proteobacteria;c__Alphaproteobacteria	0.8293796850560852

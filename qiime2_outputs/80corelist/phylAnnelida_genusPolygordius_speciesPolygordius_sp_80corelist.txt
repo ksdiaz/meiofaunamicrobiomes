@@ -1,0 +1,2 @@
+Feature ID	Taxon	Confidence
+a7108b364568d03827f094a725c3d4df	k__Bacteria;p__Proteobacteria;c__Betaproteobacteria;o__Burkholderiales;f__Burkholderiaceae;g__Burkholderia;s__bryophila	0.8647773005615574

@@ -1,0 +1,2 @@
+Feature ID	Taxon	Confidence
+ce2c5727311ce3fbb8f1ed2c18fb924a	k__Bacteria;p__Actinobacteria;c__Actinobacteria;o__Actinomycetales;f__Promicromonosporaceae;g__Cellulosimicrobium;s__	0.9654298741820287

@@ -1,0 +1,2 @@
+Feature ID	Taxon	Confidence
+83a811725372048b2f8092fac990f4ae	k__Bacteria;p__Proteobacteria;c__Alphaproteobacteria;o__Rhodobacterales;f__Rhodobacteraceae;g__Ruegeria;s__lacuscaerulensis	0.8761039942101648

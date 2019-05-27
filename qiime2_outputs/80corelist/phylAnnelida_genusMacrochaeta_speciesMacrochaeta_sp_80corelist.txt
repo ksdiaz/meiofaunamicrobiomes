@@ -1,0 +1,2 @@
+Feature ID	Taxon	Confidence
+39cc33c4b0d8bfa302b8f52cd5efb91d	k__Bacteria;p__Proteobacteria;c__Gammaproteobacteria;o__Oceanospirillales;f__Oceanospirillaceae;g__Neptuniibacter;s__caesariensis	0.9861498306307974

@@ -1,0 +1,2 @@
+Feature ID	Taxon	Confidence
+ef66b7fc23d912c1a2e408db42611449	k__Bacteria;p__Bacteroidetes;c__Flavobacteriia;o__Flavobacteriales;f__[Weeksellaceae];g__Cloacibacterium;s__	0.9999433120120249

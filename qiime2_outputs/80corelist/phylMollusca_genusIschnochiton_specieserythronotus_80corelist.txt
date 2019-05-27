@@ -1,0 +1,2 @@
+Feature ID	Taxon	Confidence
+de9b420d964f5603b16595f9298636d2	k__Bacteria;p__Proteobacteria;c__Gammaproteobacteria;o__Oceanospirillales;f__Halomonadaceae;g__Halomonas;s__nitritophilus	0.7740145705935867
